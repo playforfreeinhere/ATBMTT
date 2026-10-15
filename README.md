@@ -4,10 +4,10 @@ Dự án: Hệ mã dòng A5/1 và TinyA5/1
 
 Nhóm: Nhóm 9
 Thành viên:
-- Thành viên 1
-- Thành viên 2
-- Thành viên 3
-- Thành viên 4
+- Thành viên 1: Trịnh Duy Thành 
+- Thành viên 2: Nguyên Như Chí Kiên
+- Thành viên 3: Lê Tuấn Hưng
+- Thành viên 4: Nguyễn Thanh Thảo
 
 Mô tả
 ------
