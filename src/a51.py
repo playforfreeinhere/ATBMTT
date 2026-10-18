@@ -1,144 +1,134 @@
 class A51Cipher:
     """
-    Thuật toán mã hóa dòng A5/1 (GSM)
-    
-    Cấu trúc gồm 3 thanh ghi LFSR:
-      - R1: 19 bit (Clock bit ở vị trí index 8, Bit phản hồi = R1[18] ^ R1[17] ^ R1[16] ^ R1[13])
-      - R2: 22 bit (Clock bit ở vị trí index 10, Bit phản hồi = R2[21] ^ R2[20])
-      - R3: 23 bit (Clock bit ở vị trí index 10, Bit phản hồi = R3[22] ^ R3[21] ^ R3[20] ^ R3[7])
+    Lớp cài đặt Core thuật toán A5/1 đầy đủ (Chuẩn GSM).
+      - R1: 19 bits (Clock bit: R1[8], Taps: 13, 16, 17, 18)
+      - R2: 22 bits (Clock bit: R2[10], Taps: 20, 21)
+      - R3: 23 bits (Clock bit: R3[10], Taps: 7, 20, 21, 22)
     """
 
-    def __init__(self, key=None, frame_number=None):
-        # Tạo thanh ghi R1 gồm 19 bit 0 ban đầu
+    def __init__(self, key: list[int] = None, frame_number: int = None):
+        """Khởi tạo 3 thanh ghi rỗng"""
         self.r1 = [0] * 19
-        # Tạo thanh ghi R2 gồm 22 bit 0 ban đầu
         self.r2 = [0] * 22
-        # Tạo thanh ghi R3 gồm 23 bit 0 ban đầu
         self.r3 = [0] * 23
 
-        # Nếu có truyền Khóa K và Số khung Fn thì nạp khóa ngay
         if key is not None and frame_number is not None:
             self.setup_key(key, frame_number)
 
-    def get_majority(self, b1, b2, b3):
-        """Hàm tìm bit chiếm đa số giữa 3 bit b1, b2, b3 (trả về 0 hoặc 1)"""
-        # Nếu tổng lớn hơn hoặc bằng 2 thì số lượng bit 1 nhiều hơn (đa số là 1), ngược lại là 0
-        if (b1 + b2 + b3) >= 2:
-            return 1
-        else:
-            return 0
+    def _get_majority(self, b1: int, b2: int, b3: int) -> int:
+        """Hàm tính bit chiếm đa số (Majority bit)"""
+        return 1 if (b1 + b2 + b3) >= 2 else 0
 
-    def clock_r1(self):
-        """Dịch 1 nhịp thanh ghi R1"""
-        # Tính bit phản hồi (feedback) của R1 theo đa thức GSM
+    def _clock_r1(self):
+        """Dịch 1 nhịp thanh ghi R1 (19 bits)"""
         feedback = self.r1[18] ^ self.r1[17] ^ self.r1[16] ^ self.r1[13]
-        # Dịch toàn bộ bit sang phải và chèn bit feedback mới vào vị trí đầu tiên (index 0)
         self.r1 = [feedback] + self.r1[:-1]
 
-    def clock_r2(self):
-        """Dịch 1 nhịp thanh ghi R2"""
-        # Tính bit phản hồi (feedback) của R2
+    def _clock_r2(self):
+        """Dịch 1 nhịp thanh ghi R2 (22 bits)"""
         feedback = self.r2[21] ^ self.r2[20]
-        # Dịch toàn bộ bit sang phải và chèn bit feedback mới vào vị trí đầu tiên (index 0)
         self.r2 = [feedback] + self.r2[:-1]
 
-    def clock_r3(self):
-        """Dịch 1 nhịp thanh ghi R3"""
-        # Tính bit phản hồi (feedback) của R3
+    def _clock_r3(self):
+        """Dịch 1 nhịp thanh ghi R3 (23 bits)"""
         feedback = self.r3[22] ^ self.r3[21] ^ self.r3[20] ^ self.r3[7]
-        # Dịch toàn bộ bit sang phải và chèn bit feedback mới vào vị trí đầu tiên (index 0)
         self.r3 = [feedback] + self.r3[:-1]
 
-    def clock(self, ignore_majority=False):
+    def clock(self, ignore_majority: bool = False):
         """
-        Dịch các thanh ghi:
-          - Nếu ignore_majority=True: Dịch cả 3 thanh ghi (dùng khi nạp khóa).
-          - Nếu ignore_majority=False: Dịch theo quy tắc chiếm đa số (dùng khi sinh khóa).
+        Điều khiển dịch các thanh ghi:
+          - ignore_majority=True: Dịch cả 3 thanh ghi (dùng khi nạp khóa K và Fn).
+          - ignore_majority=False: Dịch theo quy tắc đa số Majority (dùng khi sinh dòng khóa).
         """
         if ignore_majority:
-            # Dịch tất cả 3 thanh ghi đồng thời
-            self.clock_r1()
-            self.clock_r2()
-            self.clock_r3()
+            self._clock_r1()
+            self._clock_r2()
+            self._clock_r3()
         else:
-            # 1. Lấy bit kiểm soát (clock bits) của 3 thanh ghi
-            c1 = self.r1[8]
-            c2 = self.r2[10]
-            c3 = self.r3[10]
+            c1, c2, c3 = self.r1[8], self.r2[10], self.r3[10]
+            m = self._get_majority(c1, c2, c3)
+            if c1 == m:
+                self._clock_r1()
+            if c2 == m:
+                self._clock_r2()
+            if c3 == m:
+                self._clock_r3()
 
-            # 2. Tìm bit đa số
-            maj = self.get_majority(c1, c2, c3)
-
-            # 3. Thanh ghi nào có bit kiểm soát trùng với bit đa số thì mới dịch
-            if c1 == maj:
-                self.clock_r1()
-            if c2 == maj:
-                self.clock_r2()
-            if c3 == maj:
-                self.clock_r3()
-
-    def get_keystream_bit(self):
-        """Sinh ra 1 bit khóa (Keystream bit)"""
-        # Dịch các thanh ghi theo quy tắc đa số
+    def get_keystream_bit(self) -> int:
+        """Sinh 1 bit dòng khóa (Keystream bit = R1[18] ^ R2[21] ^ R3[22])"""
         self.clock(ignore_majority=False)
-        # Bit khóa sinh ra = Bit cuối của R1 XOR Bit cuối của R2 XOR Bit cuối của R3
         return self.r1[18] ^ self.r2[21] ^ self.r3[22]
 
-    def setup_key(self, key, frame_number):
-        """Quy trình nạp Khóa K (64 bit) và Frame Number Fn (22 bit) vào các thanh ghi"""
-        # 1. Reset các thanh ghi về 0
+    def setup_key(self, key: list[int], frame_number: int):
+        """
+        Quy trình nạp Khóa 64-bit K và Số khung 22-bit Frame Number (Fn) chuẩn GSM:
+          1. Reset 3 thanh ghi về 0.
+          2. Nạp 64 bit khóa K (dịch cả 3 thanh ghi không dùng Majority).
+          3. Nạp 22 bit số khung Fn (dịch cả 3 thanh ghi không dùng Majority).
+          4. Chạy 100 nhịp khởi động (warm-up cycles) theo quy tắc đa số.
+        """
         self.r1 = [0] * 19
         self.r2 = [0] * 22
         self.r3 = [0] * 23
 
-        # 2. Nạp 64 bit của Khóa K (Dịch cả 3 thanh ghi đồng thời)
+        # Nạp 64 bit khóa K
         for i in range(64):
             self.clock(ignore_majority=True)
-            self.r1[0] = self.r1[0] ^ key[i]
-            self.r2[0] = self.r2[0] ^ key[i]
-            self.r3[0] = self.r3[0] ^ key[i]
+            self.r1[0] ^= key[i]
+            self.r2[0] ^= key[i]
+            self.r3[0] ^= key[i]
 
-        # 3. Chuyển Frame Number (số nguyên) thành danh sách 22 bit
-        fn_bits = []
-        for i in range(22):
-            bit = (frame_number >> i) & 1
-            fn_bits.append(bit)
-
-        # 4. Nạp 22 bit của Frame Number Fn (Dịch cả 3 thanh ghi đồng thời)
+        # Nạp 22 bit số khung Fn
+        fn_bits = [(frame_number >> i) & 1 for i in range(22)]
         for i in range(22):
             self.clock(ignore_majority=True)
-            self.r1[0] = self.r1[0] ^ fn_bits[i]
-            self.r2[0] = self.r2[0] ^ fn_bits[i]
-            self.r3[0] = self.r3[0] ^ fn_bits[i]
+            self.r1[0] ^= fn_bits[i]
+            self.r2[0] ^= fn_bits[i]
+            self.r3[0] ^= fn_bits[i]
 
-        # 5. Chạy 100 nhịp trộn xáo trộn trạng thái (Warm-up cycles)
+        # Chạy 100 nhịp xáo trộn trạng thái
         for _ in range(100):
             self.clock(ignore_majority=False)
 
-    def encrypt_bytes(self, data):
-        """Mã hóa / Giải mã mảng dữ liệu bytes (Dùng cho file văn bản, file ảnh...)"""
-        # Tạo mảng lưu trữ kết quả byte
+    def process_bytes(self, data: bytes) -> bytes:
+        """
+        Mã hóa / Giải mã mảng bytes dữ liệu.
+        Sử dụng toán tử bitwise XOR cho từng bit trong byte dữ liệu.
+        Dùng chung cho cả 2 chiều Mã hóa và Giải mã.
+        """
         result = bytearray()
-
-        # Duyệt qua từng byte trong dữ liệu đầu vào
         for byte in data:
             cipher_byte = 0
-            # Duyệt qua từng bit trong 1 byte (8 bit)
             for bit_index in range(8):
-                # Sinh 1 bit dòng khóa
                 ks_bit = self.get_keystream_bit()
-
-                # Lấy 1 bit của dữ liệu gốc từ trái sang phải
                 data_bit = (byte >> (7 - bit_index)) & 1
-
-                # Thực hiện phép XOR giữa bit dữ liệu và bit khóa
                 cipher_bit = data_bit ^ ks_bit
-
-                # Ghép bit mã hóa vào cipher_byte
                 cipher_byte = (cipher_byte << 1) | cipher_bit
-
-            # Thêm byte đã mã hóa vào danh sách kết quả
             result.append(cipher_byte)
-
-        # Trả về kết quả kiểu bytes
         return bytes(result)
+
+
+# --- KHỐI THỰC THI THỬ NGHIỆM ĐỘC LẬP ---
+if __name__ == "__main__":
+    # Khóa K (64-bit) và Số khung Fn (22-bit) mẫu
+    key_64bit = [1] * 32 + [0] * 32  # 64-bit key mẫu
+    fn = 0x12345                     # Frame number mẫu
+
+    # Khởi tạo đối tượng mã hóa
+    cipher_enc = A51Cipher(key_64bit, fn)
+    plaintext_data = "Hệ mã dòng A5/1 - Nhóm 9".encode('utf-8')
+
+    print("=== DEMO THUẬT TOÁN A5/1 ĐẦY ĐỦ (GSM) ===")
+    print(f"Bản rõ ban đầu  : {plaintext_data.decode('utf-8')}")
+
+    # Mã hóa
+    ciphertext_data = cipher_enc.process_bytes(plaintext_data)
+    print(f"Bản mã (Hex)    : {ciphertext_data.hex()}")
+
+    # Giải mã (Cần khởi tạo lại cipher với cùng Key và Fn)
+    cipher_dec = A51Cipher(key_64bit, fn)
+    recovered_data = cipher_dec.process_bytes(ciphertext_data)
+    print(f"Giải mã khôi phục: {recovered_data.decode('utf-8')}")
+
+    assert recovered_data == plaintext_data, "Lỗi: Giải mã A5/1 không khớp bản rõ!"
+    print("-> KIỂM THỬ THÀNH CÔNG: Mã hóa và giải mã A5/1 hoàn tất chuẩn xác.")
