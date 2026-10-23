@@ -21,7 +21,7 @@ Mục tiêu
 
 Yêu cầu môi trường
 ------------------
-- Python 3.10+ (hoạt động trên Python 3.8+ nhưng khuyến nghị 3.10)
+- Python 3.10+ 
 
 Cài đặt phụ thuộc
 ------------------
