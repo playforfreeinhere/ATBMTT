@@ -1,2 +1,2 @@
 @echo off
-start "" "%~dp0giao_dien.html"
+call "%~dp0chay.bat"
