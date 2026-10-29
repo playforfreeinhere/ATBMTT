@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="vi">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nhóm 9 · Phòng thực hành A5/1</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<main>
+<header><span class="eyebrow">NHÓM 9 · AN TOÀN VÀ BẢO MẬT THÔNG TIN</span><h1>Khám phá hệ mã dòng<span>A5/1 & TinyA5/1</span></h1><p>Mã hóa, giải mã và quan sát từng nhịp quay của ba thanh ghi.</p></header>
+<section class="toolbar" aria-label="Thiết lập">
+<label>Thuật toán<select id="algorithm"><option value="tiny">TinyA5/1 · 6 + 8 + 9 bit</option><option value="a51">A5/1 GSM · 19 + 22 + 23 bit</option></select></label>
+<label id="frameLabel" hidden>Số khung 22 bit<input id="frame" value="0x134" spellcheck="false"></label>
+<button id="example" class="secondary">Nạp ví dụ</button><button id="check" class="secondary">Kiểm thử đối chiếu</button>
+</section>
+<p id="spec" class="note"></p>
+<nav class="tabs" aria-label="Chế độ"><button data-mode="binary" class="selected" aria-pressed="true">01 · Nhị phân</button><button data-mode="text" aria-pressed="false">02 · Văn bản UTF-8</button><button data-mode="file" aria-pressed="false">03 · File thật</button></nav>
+<p id="notice" role="status" aria-live="polite"></p>
+<div id="forms" class="cards">
+<section class="card"><h2>Mã Hóa</h2><label id="encLabel" for="plain">Plaintext (nhị phân)</label><textarea id="plain" rows="3" spellcheck="false">111</textarea><small id="plainHint">Nhập chuỗi nhị phân, ví dụ: 111.</small><label for="encKey" class="keyLabel">Khóa (23 bit)</label><input id="encKey" class="key" value="10010101001110100110000" spellcheck="false"><small class="keyHint">Phải chính xác 23 bit (0 và 1).</small><button id="encrypt" class="primary">MÃ HÓA</button><div id="encResult" class="result" hidden aria-live="polite"></div><button id="transfer" class="textbutton" hidden>Đưa bản mã sang ô giải mã →</button></section>
+<section class="card"><h2>Giải Mã</h2><label id="decLabel" for="cipher">Ciphertext (nhị phân)</label><textarea id="cipher" rows="3" spellcheck="false">011</textarea><small id="cipherHint">Nhập bản mã nhị phân, ví dụ: 011.</small><label for="decKey" class="keyLabel">Khóa (23 bit)</label><input id="decKey" class="key" value="10010101001110100110000" spellcheck="false"><small class="keyHint">Phải chính xác 23 bit (0 và 1).</small><button id="decrypt" class="primary">GIẢI MÃ</button><div id="decResult" class="result" hidden aria-live="polite"></div></section>
+</div>
+<section id="filePanel" class="card" hidden><h2>Mã hóa / Giải mã file</h2><p>Chọn file văn bản hoặc ảnh nhỏ. Dữ liệu được xử lý tại máy bạn, không tải lên máy chủ.</p><label for="fileInput">File đầu vào (tối đa 2 MB cho bản demo)</label><input type="file" id="fileInput"><label class="keyLabel" for="fileKey">Khóa (23 bit)</label><input id="fileKey" class="key" value="10010101001110100110000" spellcheck="false"><small class="keyHint"></small><div class="fileactions"><button id="encFile" class="primary">MÃ HÓA FILE</button><button id="decFile" class="secondary">GIẢI MÃ FILE</button></div><p id="fileStatus" role="status"></p><a id="download" class="download" hidden>Tải file kết quả</a><p class="note">Bản mã không chứa khóa, thuật toán hay số khung. Khi giải mã, dùng đúng các thiết lập cũ. Hai chiều cùng dùng XOR; chương trình không xác thực dữ liệu.</p></section>
+<section id="visual" class="card visual"><div class="sectiontitle"><h2>Hiển Thị Từng Bước</h2><span id="stepCount">Chưa có dữ liệu</span></div><div class="playbar"><button id="previous" disabled>← Trước</button><button id="play" disabled>▶ Phát</button><button id="next" disabled>Tiếp →</button><span id="phaseName">Bấm Mã hóa hoặc Giải mã để bắt đầu.</span></div><div class="visualgrid"><div id="registers"></div><aside><article><h3>Bit Điều Khiển</h3><div id="clocks">—</div></article><article><h3>Hàm Đa Số</h3><div id="majority">—</div></article><article><h3>Quay Thanh Ghi</h3><div id="rotated">—</div></article><article><h3>Tạo Keystream</h3><div id="streamBit">—</div></article><article><h3>Phép XOR</h3><div id="xor">—</div></article></aside></div><div class="legend"><span class="clockmark"></span> Bit clock <span class="outmark"></span> Bit đầu ra · Index 0 ở bên trái, đầu nạp feedback.</div><label for="stream">Dòng khóa S đã sinh đến bước hiện tại</label><output id="stream">—</output></section>
+<section id="checks" class="card" hidden><h2>Kiểm thử và đối chiếu</h2><div id="checkRows"></div></section>
+<footer><strong>Chỉ dùng cho học tập.</strong> A5/1 đã lỗi thời; TinyA5/1 là mô hình minh họa. Khóa sai có thể không báo lỗi.<br>Tiny trong giao diện này theo mô tả Chương 4 của PDF được cung cấp, không phải biến thể Tiny cũ trong repository.</footer>
+</main><script src="core.js"></script><script src="app.js"></script>
+</body></html>

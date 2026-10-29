@@ -12,6 +12,8 @@ class A51Cipher:
         self.r2 = [0] * 22
         self.r3 = [0] * 23
 
+        if (key is None) != (frame_number is None):
+            raise ValueError("Provide both key and frame_number")
         if key is not None and frame_number is not None:
             self.setup_key(key, frame_number)
 
@@ -70,6 +72,11 @@ class A51Cipher:
         self.r1 = [0] * 19
         self.r2 = [0] * 22
         self.r3 = [0] * 23
+
+        if len(key) != 64 or any(bit not in (0, 1) for bit in key):
+            raise ValueError("Key must contain exactly 64 bits")
+        if not isinstance(frame_number, int) or not 0 <= frame_number < (1 << 22):
+            raise ValueError("Frame number must be a 22-bit unsigned integer")
 
         # Nạp 64 bit khóa K
         for i in range(64):

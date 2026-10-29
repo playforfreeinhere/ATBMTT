@@ -10,7 +10,6 @@ def demo_reuse(plain1: bytes, plain2: bytes, key: int):
     t2 = TinyA51(key)
     c2 = t2.encrypt(plain2)
     # if keystream reused, c1 ^ c2 = p1 ^ p2
-    import itertools
     xored = bytes(a ^ b for a, b in zip(c1, c2))
     return c1, c2, xored
 
@@ -22,4 +21,6 @@ if __name__ == "__main__":
     print("Cipher1:", c1.hex())
     print("Cipher2:", c2.hex())
     print("XOR (should equal p1^p2):", x.hex())
-    print("p1^p2:", bytes(a ^ b for a, b in zip(p1, p2)).hex())
+    expected = bytes(a ^ b for a, b in zip(p1, p2))
+    print("p1^p2:", expected.hex())
+    assert x == expected

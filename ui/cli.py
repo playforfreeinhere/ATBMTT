@@ -1,54 +1,52 @@
-"""
-Simple CLI wrapper to encrypt/decrypt files using the tiny A5/1 implementation.
-Usage:
-    python -m ui.cli encrypt input.txt output.bin <key>
-    python -m ui.cli decrypt input.bin output.txt <key>
-
-Key can be given as integer or hex (prefix 0x).
-"""
-import sys
-import os
+"""Encrypt/decrypt files with the 6/8/9-bit teaching TinyA5/1 cipher."""
+import argparse
 from pathlib import Path
 
 from src.tiny_a51 import TinyA51
 
 
-def parse_key(s: str) -> int:
-    s = s.strip()
-    if s.lower().startswith("0x"):
-        return int(s, 16)
-    return int(s)
+def parse_key(value: str) -> int:
+    value = value.strip()
+    try:
+        key = int(value, 16 if value.lower().startswith('0x') else 10)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError('Key must be decimal or hexadecimal') from exc
+    if not 0 <= key < (1 << 32):
+        raise argparse.ArgumentTypeError('Key must be a 32-bit unsigned integer')
+    return key
 
 
 def encrypt_file(in_path: str, out_path: str, key: int):
-    p = Path(in_path)
-    data = p.read_bytes()
-    t = TinyA51(key)
-    out = t.encrypt(data)
-    Path(out_path).write_bytes(out)
-    print(f"Encrypted {in_path} -> {out_path} ({len(data)} bytes)")
+    source, destination = Path(in_path), Path(out_path)
+    if source.resolve() == destination.resolve() or (
+        destination.exists() and source.samefile(destination)
+    ):
+        raise ValueError('Input and output must be different files')
+    data = source.read_bytes()
+    result = TinyA51(key).encrypt(data)
+    # Exclusive creation protects existing user files.
+    with destination.open('xb') as output:
+        output.write(result)
+    print(f'Processed {in_path} -> {out_path} ({len(data)} bytes)')
 
 
 def decrypt_file(in_path: str, out_path: str, key: int):
-    encrypt_file(in_path, out_path, key)  # symmetric for stream cipher
+    encrypt_file(in_path, out_path, key)
 
 
 def main():
-    if len(sys.argv) < 5:
-        print(__doc__)
-        return
-    cmd = sys.argv[1].lower()
-    if cmd not in ("encrypt", "decrypt"):
-        print("First argument must be 'encrypt' or 'decrypt'")
-        return
-    in_path = sys.argv[2]
-    out_path = sys.argv[3]
-    key = parse_key(sys.argv[4])
-    if cmd == "encrypt":
-        encrypt_file(in_path, out_path, key)
-    else:
-        decrypt_file(in_path, out_path, key)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('command', choices=('encrypt', 'decrypt'))
+    parser.add_argument('input')
+    parser.add_argument('output')
+    parser.add_argument('key', type=parse_key)
+    args = parser.parse_args()
+    try:
+        operation = encrypt_file if args.command == 'encrypt' else decrypt_file
+        operation(args.input, args.output, args.key)
+    except (OSError, ValueError) as exc:
+        parser.exit(1, f'Error: {exc}\n')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

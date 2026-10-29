@@ -9,6 +9,9 @@ class TinyA51Cipher:
 
     def __init__(self, r1_init: list[int], r2_init: list[int], r3_init: list[int]):
         """Khởi tạo trạng thái ban đầu cho 3 thanh ghi dạng mảng bit 0/1"""
+        for bits, length in ((r1_init, 6), (r2_init, 8), (r3_init, 9)):
+            if len(bits) != length or any(bit not in (0, 1) for bit in bits):
+                raise ValueError(f"Register must contain exactly {length} bits")
         self.r1 = list(r1_init)
         self.r2 = list(r2_init)
         self.r3 = list(r3_init)
@@ -79,6 +82,8 @@ class TinyA51Cipher:
 
     def generate_keystream(self, length: int) -> tuple[list[int], list[dict]]:
         """Sinh chuỗi dòng khóa gồm N bit và xuất lịch sử log"""
+        if not isinstance(length, int) or length < 0:
+            raise ValueError("Length must be a nonnegative integer")
         keystream = []
         logs = []
         for i in range(1, length + 1):
@@ -92,9 +97,44 @@ class TinyA51Cipher:
         Mã hóa / Giải mã chuỗi bit bản rõ bằng phép toán XOR.
         XOR có tính chất đối xứng (P ^ S = C và C ^ S = P) nên hàm xử lý được cả 2 chiều.
         """
+        if any(bit not in (0, 1) for bit in bit_stream):
+            raise ValueError("Input must contain only bits")
         keystream, logs = self.generate_keystream(len(bit_stream))
         output_bits = [b ^ k for b, k in zip(bit_stream, keystream)]
         return output_bits, keystream, logs
+
+
+class TinyA51(TinyA51Cipher):
+    """Byte interface using the same 6/8/9-bit teaching cipher.
+
+    Map an unsigned 32-bit key to a 23-bit state by XOR-folding its high
+    nine bits into its low bits. This is a teaching convention, not a KDF.
+    Register lists are stored with index 0 at the feedback input.
+    """
+
+    def __init__(self, key: int):
+        if not isinstance(key, int) or not 0 <= key < (1 << 32):
+            raise ValueError("TinyA51 key must be a 32-bit unsigned integer")
+        state = (key & ((1 << 23) - 1)) ^ (key >> 23)
+        bits = [(state >> i) & 1 for i in range(23)]
+        super().__init__(bits[:6], bits[6:14], bits[14:])
+
+    def keystream_bytes(self, length: int) -> bytes:
+        if not isinstance(length, int) or length < 0:
+            raise ValueError("Length must be a nonnegative integer")
+        output = bytearray()
+        for _ in range(length):
+            value = 0
+            for _ in range(8):
+                bit, _ = self.step_verbose(0)
+                value = (value << 1) | bit
+            output.append(value)
+        return bytes(output)
+
+    def encrypt(self, data: bytes) -> bytes:
+        return bytes(a ^ b for a, b in zip(data, self.keystream_bytes(len(data))))
+
+    decrypt = encrypt
 
 
 # --- KHỐI THỰC THI THỬ NGHIỆM ĐỘC LẬP ---
