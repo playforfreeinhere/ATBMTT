@@ -126,17 +126,18 @@ class A51Cipher:
         return bytes(result) # Trả về kết quả là bytes (chuyển bytearray thành bytes)
 
 #8. Khối demo chạy trực tiếp
-if __name__ == "__main__":
-    key_64bit = [1] * 32 + [0] * 32  
-    fn = 0x12345                     
-    cipher_enc = A51Cipher(key_64bit, fn)
-    plaintext_data = "Hệ mã dòng A5/1 - Nhóm 9".encode('utf-8')
-    print("DEMO THUẬT TOÁN A5/1 ĐẦY ĐỦ (GSM)")
+if __name__ == "__main__": # Chạy thử nghiệm 
+    key_64bit = [1] * 32 + [0] * 32  # Tạo khóa 64 bit gồm 32 bit 1 và 32 bit 0
+    fn = 0x12345                     # Gán giá trị fn (số khung) dưới dạng hexadecimal 
+    cipher_enc = A51Cipher(key_64bit, fn) # Tạo đối tượng mã hóa với hàm __init__() sẽ tạo thanh ghi và gọi setup_key().
+    plaintext_data = "Hệ mã dòng A5/1 - Nhóm 9".encode('utf-8') # Chuyển chuỗi văn bản thành các byte UTF-8. 
+    print("DEMO THUẬT TOÁN A5/1 ĐẦY ĐỦ (GSM)") 
     print(f"Bản rõ ban đầu  : {plaintext_data.decode('utf-8')}")
-    ciphertext_data = cipher_enc.process_bytes(plaintext_data)
-    print(f"Bản mã (Hex)    : {ciphertext_data.hex()}")
-    cipher_dec = A51Cipher(key_64bit, fn)
-    recovered_data = cipher_dec.process_bytes(ciphertext_data)
-    print(f"Giải mã khôi phục: {recovered_data.decode('utf-8')}")
-    assert recovered_data == plaintext_data, "Lỗi: Giải mã A5/1 không khớp bản rõ!"
-    print("-> KIỂM THỬ THÀNH CÔNG: Mã hóa và giải mã A5/1 hoàn tất chuẩn xác.")
+    # In tiêu đề và in mục bản rõ cho phép chèn giá trị biểu thức trong vào chuỗi ; chuyển byte về văn bản
+    ciphertext_data = cipher_enc.process_bytes(plaintext_data) # Mã hóa bản rõ bằng cách XOR từng bit với dòng khóa, lưu kết quả vào ciphertext_data
+    print(f"Bản mã (Hex)    : {ciphertext_data.hex()}") # Hiển thị bản mã dưới dạng hexadecimal. Mỗi byte được biểu diễn bằng hai ký tự hex.
+    cipher_dec = A51Cipher(key_64bit, fn) # Tạo đối tượng mới với cùng khóa và số khung, nhờ đó tái tạo dòng khóa từ đầu.
+    recovered_data = cipher_dec.process_bytes(ciphertext_data) # XOR bản mã với dòng khóa giống ban đầu để thu lại bản rõ
+    print(f"Giải mã khôi phục: {recovered_data.decode('utf-8')}") # Chuyển dữ liệu khôi phục về văn bản UTF-8 và in ra.
+    assert recovered_data == plaintext_data, "Lỗi: Giải mã A5/1 không khớp bản rõ!" # Kiểm tra hai dãy byte bằng nhau. (bằng nhau thì chạy tiếp còn không thì phát sinh Assertion Error cùng tbao) 
+    print("-> KIỂM THỬ THÀNH CÔNG: Mã hóa và giải mã A5/1 hoàn tất chuẩn xác.") # In ra thông báo kiểm thử thành công
