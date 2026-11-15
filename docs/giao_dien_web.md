@@ -2,7 +2,7 @@
 
 ## Chạy trên máy cá nhân
 
-Nhấp đúp `giao_dien.html` để mở bằng Chrome/Edge. Không cần Python, Flask, npm, tài khoản hay kết nối Internet. Đây là giao diện offline HTML/CSS/JavaScript, không phải ứng dụng Flask của nhóm tác giả PDF. Có thể dùng `chay_web.bat` trên Windows. Trong môi trường có chính sách doanh nghiệp chặn file HTML, có thể phục vụ cùng thư mục bằng `py -m http.server 8000` rồi mở địa chỉ máy cục bộ tương ứng trong trình duyệt.
+Nhấp đúp `giao_dien.html` để mở bằng Chrome/Edge. Không cần Python, Flask, npm, tài khoản hay kết nối Internet. Đây là giao diện offline HTML/CSS/JavaScript, không phải ứng dụng Flask của nhóm tác giả PDF. Có thể dùng `chay.bat` trên Windows. Trong môi trường có chính sách doanh nghiệp chặn file HTML, có thể phục vụ cùng thư mục bằng `py -m http.server 8000` rồi mở địa chỉ máy cục bộ tương ứng trong trình duyệt.
 
 Mã được chia `ui/web/core.js` (thuật toán), `styles.css`, `index.html`, `app.js` (giao diện). `python ui/web/build.py` ghép thành một file độc lập `giao_dien.html`. Không sửa riêng bản ghép rồi quên cập nhật nguồn.
 
