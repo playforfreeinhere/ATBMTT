@@ -33,6 +33,8 @@ Cả hai tab dùng chung bộ thiết lập. Tiny theo slide: thanh ghi 6/8/9 bi
 
 Đọc theo thứ tự: lõi thuật toán → xử lý dữ liệu → giao diện → kiểm thử.
 
+Mỗi file Python đều có giải thích tiếng Việt ở đầu file và trước từng lớp/hàm: mục đích, tham số, kết quả, biến quan trọng và các bước xử lý. Các phép XOR/dịch bit, quy ước khóa, thao tác file và luồng nền có chú thích riêng. Những phần này là tài liệu trong code, không thay đổi thuật toán.
+
 | File/thư mục | Chức năng |
 | --- | --- |
 | `run_gui.py` | Điểm khởi chạy duy nhất của giao diện |
