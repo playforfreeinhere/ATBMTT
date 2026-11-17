@@ -1,99 +1,90 @@
-# ATBMTT — Hệ mã dòng A5/1 và TinyA5/1
+# A5/1 và TinyA5/1 — Nhóm 9
 
-An toàn và Bảo mật thông tin — Nhóm 9. Chương trình minh họa mã hóa và giải mã bằng A5/1 và TinyA5/1, có giao diện cửa sổ Tkinter, giao diện web offline, mô phỏng thanh ghi và bộ kiểm thử.
+Chương trình Python minh họa hệ mã dòng: mã hóa, giải mã văn bản/file và xem từng bước biến đổi thanh ghi. Giao diện dùng Tkinter; không cần trình duyệt, JavaScript hay máy chủ.
 
-## 1. Thành viên nhóm
+## 1. Cài đặt và chạy
 
-- Trịnh Duy Thành
-- Nguyên Như Chí Kiên
-- Lê Tuấn Hưng
-- Nguyễn Thanh Thảo
-
-## 2. Chức năng chính
-
-- Mã hóa và giải mã với **A5/1** và **TinyA5/1**.
-- Xử lý chuỗi bit, văn bản UTF-8 và file.
-- Mô phỏng các bước dịch thanh ghi, tính majority và tạo dòng khóa.
-- Kiểm thử và đối chiếu kết quả thuật toán.
-  
-## 3. Cấu trúc mã nguồn
-
-```text
-ATBMTT/
-├── README.md                   # Hướng dẫn cài đặt và chạy
-├── chay.bat                    # Mở chương trình trên Windows
-├── run_gui.py                  # Khởi chạy bằng Python
-└── ATBMTT-main/
-    └── ATBMTT-main/
-        ├── giao_dien.html      # Giao diện web offline
-        ├── chay.bat
-        ├── run_gui.py
-        ├── requirements.txt    # Phụ thuộc Python
-        ├── src/                # Thuật toán A5/1 và TinyA5/1
-        ├── ui/                 # Giao diện web, Tkinter và CLI
-        ├── tests/              # Bộ kiểm thử
-        ├── attacks/            # Mã minh họa
-        ├── data/               # Dữ liệu mẫu
-        └── docs/               # Tài liệu chi tiết
-```
-
-## 4. Yêu cầu môi trường và cài đặt
-
-Giao diện mặc định là **cửa sổ Tkinter** như hình demo. Cần **Python 3.10+**, có thành phần **Tcl/Tk** (bộ cài Python trên Windows thường có sẵn). Bản web offline vẫn mở được bằng Chrome/Edge mà không cần Python.
-
-Để chạy chương trình hoặc kiểm thử mã nguồn, sử dụng **Python 3.10+**. Tải dự án bằng Git hoặc chọn **Code → Download ZIP** trên GitHub:
-
-```bash
-git clone https://github.com/playforfreeinhere/ATBMTT.git
-cd ATBMTT
-```
-
-Cài đặt các thư viện cho phần Python và kiểm thử:
-
-```powershell
-cd ATBMTT-main/ATBMTT-main
-py -m pip install -r requirements.txt
-```
-
-## 5. Hướng dẫn chạy chương trình
-
-**Cách 1 — Windows:**
-
-Tải và giải nén toàn bộ dự án, cài Python có Tcl/Tk rồi nhấp đúp **`chay.bat`**. Chương trình mở cửa sổ với hai tab **Nhị phân / Tính tay** và **Văn bản / File**. Thuật toán, khóa và frame dùng chung cho hai tab. Tiny nhận khóa nhị phân đúng 23 bit; A5/1 nhận khóa 64 bit và frame 22 bit ở dạng số thập phân hoặc `0x...`.
-
-**Cách 2 — Python:**
-Tại thư mục ngoài cùng của dự án, chạy:
+Cài **Python 3.10 trở lên**, có **Tcl/Tk**. Trên Windows, giữ tùy chọn Tcl/Tk khi cài Python. Tải và giải nén toàn bộ repository, mở thư mục chứa README này trong VS Code rồi chạy:
 
 ```powershell
 py run_gui.py
 ```
 
-Để mở giao diện web thay vì cửa sổ:
+Trên Linux/macOS, thay `py` bằng `python3`. Nếu báo thiếu `tkinter`, cài thành phần Tkinter phù hợp với bản Python đang dùng.
+
+Không cần cài thư viện ngoài để chạy giao diện, CLI hoặc demo. `requirements.txt` chỉ chứa pytest cho kiểm thử.
+
+## 2. Sử dụng giao diện
+
+- Chọn TinyA5/1 hoặc A5/1, nhập khóa; chọn **Nạp ví dụ** để lấy dữ liệu mẫu.
+- **Nhị phân / Tính tay:** nhập 0/1 → Mã hóa → xem thanh ghi, clock, majority và dòng S. Chọn **Đưa kết quả lên đầu vào → Giải mã** để khôi phục bản rõ.
+- **Văn bản / File:** nhập văn bản tiếng Việt để mã hóa thành hex; khi giải mã, nhập bản mã hex.
+- **Mã hóa file... / Giải mã file...:** chọn file đầu vào và tên đầu ra mới. Ảnh đã mã hóa là dữ liệu nhị phân; giải mã rồi mở file khôi phục bằng trình xem ảnh.
+- Khi giải mã, giữ đúng thuật toán, khóa và frame. Chương trình không ghi đè file có sẵn.
+
+| Thuật toán trong giao diện | Khóa | Frame | Ví dụ |
+| --- | --- | --- | --- |
+| TinyA5/1 | Chuỗi nhị phân đúng 23 bit | Không dùng | `10010101001110100110000`: `111 → 011 → 111` |
+| A5/1 | Số không dấu 64 bit, thập phân hoặc `0x...` | Số không dấu 22 bit | Khóa `0x1223456789ABCDEF`, frame `0x134` |
+
+Cả hai tab dùng chung bộ thiết lập. Tiny theo slide: thanh ghi 6/8/9 bit, clock 1/3/3, tap 2/4/5 — 6/7 — 2/7/8, lấy S sau khi dịch. Xem [ví dụ tính tay](docs/tiny_hand_example.md).
+
+## 3. Đọc mã nguồn
+
+Đọc theo thứ tự: lõi thuật toán → xử lý dữ liệu → giao diện → kiểm thử.
+
+| File/thư mục | Chức năng |
+| --- | --- |
+| `run_gui.py` | Điểm khởi chạy duy nhất của giao diện |
+| `src/a51.py` | A5/1 đầy đủ: nạp khóa/frame, dịch, sinh S, XOR byte |
+| `src/tiny_a51.py` | TinyA5/1: sinh S và lịch sử từng bước |
+| `ui/operations.py` | Kiểm tra khóa, xử lý văn bản và file; không phụ thuộc Tkinter |
+| `ui/binary.py` | Xử lý chuỗi bit và định dạng bảng bước trung gian |
+| `ui/gui.py` | Cửa sổ, hai tab và các nút; chạy tác vụ nặng ở luồng nền |
+| `ui/cli.py` | Mã hóa/giải mã file bằng dòng lệnh |
+| `tests/` | Kiểm thử lõi, dữ liệu, CLI và giao diện |
+| `attacks/keystream_reuse.py` | Demo tác hại của dùng lại dòng khóa |
+| `test.py` | Demo tổng hợp và kiểm tra khôi phục tệp văn bản |
+| `data/sample_plain.txt` | Tệp văn bản mẫu |
+
+Tất cả mã thực thi là Python. Thư mục đã được đưa ra gốc; không còn `ATBMTT-main/ATBMTT-main`, bản web hay các file mở nhanh trùng lặp.
+
+## 4. Kiểm thử và demo
+
+Tại thư mục gốc:
 
 ```powershell
-py run_gui.py --web
+py -m pip install -r requirements.txt
+py -m pytest -v
+py test.py
+py -m attacks.keystream_reuse
 ```
 
-Trong tab **Văn bản / File**, nhập văn bản → Mã hóa → Đưa kết quả lên đầu vào → Giải mã. Các nút **Mã hóa file... / Giải mã file...** mở hộp chọn file và tên đầu ra mới; không ghi đè file có sẵn. Để giải mã ảnh, chọn file `.a51`, giữ khóa/thuật toán/frame và mở file khôi phục bằng trình xem ảnh.
+`PASSED`: đạt. `SKIPPED`: chưa chạy; hai ca mở cửa sổ sẽ được bỏ qua nếu môi trường không có màn hình. `test.py` dùng file tạm và tự dọn sau khi kết thúc.
 
-Tiny Python dùng clock 1/3/3, các tap 2/4/5, 6/7, 2/7/8 và lấy S sau khi dịch. Ví dụ khóa `10010101001110100110000`: `111 → 011 → 111`. Giao diện không dùng quy tắc Tiny cũ trong ảnh tham khảo.
-
-**Chạy kiểm thử:** tại `ATBMTT-main/ATBMTT-main`:
+Chạy riêng lõi để xem ví dụ:
 
 ```powershell
-py -m pytest -q
+py src/a51.py
+py src/tiny_a51.py
 ```
 
-Khi chỉnh sửa mã nguồn web trong `ui/web/`, tạo lại giao diện HTML bằng:
+CLI được giữ để chạy file bằng lệnh:
 
 ```powershell
-py ui/web/build.py
+py -m ui.cli encrypt data/sample_plain.txt data/sample_encrypted.bin 0x1A2B3C4D
+py -m ui.cli decrypt data/sample_encrypted.bin data/sample_decrypted.txt 0x1A2B3C4D
 ```
 
-## 6. Đóng góp của các thành viên
+CLI dùng bộ chuyển khóa số 32 bit `TinyA51(key)`, còn GUI dùng trực tiếp chuỗi 23 bit. Hai định dạng không thể thay thế cho nhau. Mỗi lần mã hóa/giải mã phải tạo lại đối tượng với cùng thiết lập; khi xử lý nhiều khối của một file thì giữ nguyên đối tượng giữa các khối.
 
-Mã nguồn được quản lý bằng **Git và GitHub**. Có thể xem lịch sử các thay đổi, người thực hiện và nội dung commit tại:
+## 5. Thành viên và nguồn tham khảo
 
-**[Lịch sử commit của dự án](https://github.com/playforfreeinhere/ATBMTT/commits/main/)**
+Trịnh Duy Thành · Nguyên Như Chí Kiên · Lê Tuấn Hưng · Nguyễn Thanh Thảo.
 
----
+Đóng góp được ghi nhận trong [lịch sử commit](https://github.com/playforfreeinhere/ATBMTT/commits/main/). Nhóm cần xác nhận phần tự thực hiện, phần tham khảo và phần AI hỗ trợ trong báo cáo.
+
+- [Briceno, Goldberg và Wagner — A Pedagogical Implementation of A5/1](https://cryptome.wikileaks.org/jya/a51-pi.htm): đối chiếu cấu trúc và vector A5/1.
+- Slide “Chương 2 — Mã hóa khóa đối xứng”, trang 46–50: quy tắc và ví dụ TinyA5/1.
+
+Chương trình phục vụ học tập; không tích hợp xác thực tính toàn vẹn. Giải mã đúng dữ liệu mẫu không chứng minh hệ mã an toàn cho dữ liệu thực tế.

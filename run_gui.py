@@ -1,7 +1,6 @@
-from pathlib import Path
-import runpy
-import sys
-if __name__ == '__main__':
-    project = Path(__file__).resolve().parent / 'ATBMTT-main' / 'ATBMTT-main'
-    sys.path.insert(0, str(project))
-    runpy.run_path(str(project / 'run_gui.py'), run_name='__main__')
+"""Mở giao diện Python: py run_gui.py."""
+
+from ui.gui import main
+
+if __name__ == "__main__":
+    main()
