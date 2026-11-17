@@ -49,6 +49,13 @@ Cả hai tab dùng chung bộ thiết lập. Tiny theo slide: thanh ghi 6/8/9 bi
 
 Tất cả mã thực thi là Python. Thư mục đã được đưa ra gốc; không còn `ATBMTT-main/ATBMTT-main`, bản web hay các file mở nhanh trùng lặp.
 
+Các file còn lại đều có mục đích riêng:
+
+- `test.py` là demo chạy trực tiếp; `tests/` là kiểm thử tự động, không phải hai bản thuật toán trùng nhau.
+- `ui/cli.py` là lựa chọn chạy bằng dòng lệnh, không cần mở cửa sổ.
+- `README.md`, `docs/` là tài liệu; `requirements.txt` liệt kê phụ thuộc kiểm thử; `data/` là dữ liệu mẫu. Chúng không phải mã chạy bằng ngôn ngữ lập trình khác.
+- Cấu hình Git bỏ qua cache được giữ để tránh đưa file tạm lên repository. Không cần cấu hình ép thống kê ngôn ngữ vì toàn bộ mã nguồn đã là Python.
+
 ## 4. Kiểm thử và demo
 
 Tại thư mục gốc:
