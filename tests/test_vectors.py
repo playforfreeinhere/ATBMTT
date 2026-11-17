@@ -1,25 +1,9 @@
-"""KIỂM THỬ LÕI, VECTOR THAM CHIẾU, CLI VÀ DEMO DÙNG LẠI DÒNG KHÓA.
-
-Chạy: py -m pytest tests/test_vectors.py -v.
-Vector A5/1 của Briceno/Goldberg/Wagner kiểm tra hai đoạn liên tiếp 114 bit.
-Tiny kiểm tra ví dụ độc lập từ slide. Các ca còn lại kiểm tra tính lặp lại,
-khôi phục dữ liệu, khóa sai, xử lý theo khối và CLI thực sự qua subprocess.
-
-pytest tự truyền tmp_path vào ca cần file tạm. sys.executable bảo đảm
-chương trình con dùng đúng Python đang chạy kiểm thử. returncode=0 là thành
-công; stderr chứa thông báo lỗi. Một ca được parametrize tạo nhiều lượt chạy.
-Vòng mã hóa/giải mã đơn thuần chưa đủ chứng minh đúng thuật toán, vì hai
-chiều có thể cùng sai; vì vậy cần kết hợp vector độc lập và kiểm tra log.
-"""
+"""KIỂM THỬ LÕI, VECTOR THAM CHIẾU, CLI VÀ DEMO DÙNG LẠI DÒNG KHÓA."""
 
 import pytest
-
 from src.tiny_a51 import TinyA51
-
-
 def test_keystream_repeatability():
     """Hai đối tượng Tiny mới cùng khóa phải sinh cùng 16 byte S.
-
     Kiểm tra tính xác định của bộ sinh, không phải chứng minh S ngẫu nhiên an toàn.
     """
     key = 0x1A2B3C
@@ -32,10 +16,8 @@ def test_keystream_repeatability():
 
 def test_encrypt_decrypt_roundtrip():
     """Mã hóa rồi tạo bộ Tiny mới cùng khóa để giải mã.
-
     ljust(32,b"\x00") thêm byte 0 ở cuối cho đủ 32 byte. Phải so sánh với
-    đầy đủ dữ liệu đã đệm, không bỏ byte 0 hoặc giải mã bằng trạng thái đã chạy.
-    """
+    đầy đủ dữ liệu đã đệm, không bỏ byte 0 hoặc giải mã bằng trạng thái đã chạy."""
     key = 0xDEADBEEF
     t = TinyA51(key)
     data = b"Test data for encryption".ljust(32, b"\x00")
@@ -44,22 +26,18 @@ def test_encrypt_decrypt_roundtrip():
     t2 = TinyA51(key)
     p = t2.decrypt(c)
     assert p == data
-
-
+    
 from src.a51 import A51Cipher
 from src.tiny_a51 import TinyA51Cipher
 from attacks.keystream_reuse import demo_reuse
 
-
-def test_a51_published_vector():
-    # Vector tham chiếu A5/1 của Marc Briceno / Ian Goldberg / David Wagner:
+def test_a51_published_vector(): # Kiểm tra kết quả của thuật toán A5/1 có trùng với vector tham chiếu công khai hay không.
     # Khóa theo byte 12 23 45 67 89 AB CD EF, frame 0x134;
     # Giữ thứ tự byte, nạp bit thấp trước trong từng byte.
     """Đối chiếu hai đoạn 114 bit LIÊN TIẾP bằng khóa/frame tham chiếu.
-
     Nạp từng byte khóa từ bit thấp lên cao; giữ cùng đối tượng qua hai đoạn.
     Mỗi đoạn thêm 6 bit 0 để đóng gói 114 thành 120 bit = 15 byte. Phép dịch
-    (7-k) đặt bit vào vị trí cao trước; phần đệm không phải đầu ra thuật toán.
+    (7-k) đặt bit vào vị trí cao trước; phần đệm không phải đầu ra của thuật toán.
     """
     key = bytes.fromhex("1223456789abcdef")
     cipher = A51Cipher([(byte >> i) & 1 for byte in key for i in range(8)], 0x134)
