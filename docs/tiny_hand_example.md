@@ -1,4 +1,4 @@
-# Ví dụ TinyA5/1 theo slide
+# Ví dụ TinyA5/1
 
 Khóa `10010101001110100110000` được chia thành R1 = `100101`, R2 = `01001110`, R3 = `100110000`.
 
@@ -12,7 +12,7 @@ Index 0 là đầu nạp phản hồi. Mỗi bước đọc ba clock, tính majo
 
 Bản rõ `111`, dòng S `100`, bản mã `011`. Khởi tạo lại cùng khóa để giải mã: `011 XOR 100 = 111`.
 
-## Các bước trung gian
+## Các bước
 
 ```text
 Index thanh ghi tăng từ đầu nạp feedback (index 0) đến đầu ra.
@@ -37,5 +37,3 @@ Bước 3: clock=(1, 0, 0), majority=0, quay=(False, True, True)
   S=0; 1 XOR 0 = 1
 
 ```
-
-Ví dụ này dùng cùng lõi Python với cả hai tab của giao diện. CLI dùng cùng quy tắc dịch nhưng nhận khóa số 32 bit qua bộ chuyển trạng thái riêng.
