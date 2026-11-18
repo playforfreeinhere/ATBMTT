@@ -5,17 +5,13 @@ from pathlib import Path
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 from tkinter.scrolledtext import ScrolledText
-
 from ui.binary import format_trace, process_binary
 from ui.operations import parse_unsigned, process_file, process_text
-
 # Khóa ví dụ cố định để đối chiếu với slide, không dùng làm khóa bảo mật.
 TINY_KEY = "10010101001110100110000"
 A51_KEY = "0x1223456789ABCDEF"
 
-
 class CipherApp:
-
     def __init__(self, root):
         self.root = root
         # Chỉ worker xử lý thuật toán; Tkinter luôn được cập nhật từ luồng chính.
@@ -273,8 +269,7 @@ class CipherApp:
             return
         self.executor.shutdown(wait=False)
         self.root.destroy()
-
-
+        
 def main():
     root = tk.Tk()
     CipherApp(root)
