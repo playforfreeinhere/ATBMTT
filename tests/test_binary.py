@@ -1,12 +1,4 @@
-"""KIỂM THỬ CHUỖI BIT VÀ LỊCH SỬ — py -m pytest tests/test_binary.py -v.
-
-Dùng ví dụ Tiny độc lập trong slide và vector tham chiếu A5/1.
-Không chỉ kiểm tra giải mã khôi phục: còn kiểm tra S, clock, majority,
-quyết định dịch và trạng thái trước/sau để phát hiện lỗi từng nhịp.
-KEY là khóa Tiny mẫu 23 bit. Các hàm test_* do pytest tự tìm và chạy.
-@pytest.mark.parametrize chạy cùng hàm với nhiều bộ dữ liệu; mỗi bộ là
-một ca kiểm thử. pytest.raises kiểm tra lỗi đúng loại được phát sinh.
-"""
+"""KIỂM THỬ CHUỖI BIT VÀ LỊCH SỬ."""
 
 import pytest
 
@@ -16,12 +8,6 @@ KEY = "10010101001110100110000"
 
 
 def test_hand_calculation_and_trace():
-    # Ví dụ tính tay độc lập ở trang 49–50 của slide: 111 XOR 100 = 011.
-    """Đối chiếu ví dụ Tiny trong slide: 111 XOR 100 = 011.
-
-    Kiểm tra cả trạng thái ban đầu, clock 0/0/1, majority 0, dịch R1/R2 và
-    trạng thái R1 sau bước đầu; giải mã phải trả 111. Không chỉ kiểm tra roundtrip.
-    """
     result, stream, rows = process_binary("TinyA5/1", KEY, "", "111")
     assert result == "011"
     assert stream == "100"
@@ -39,11 +25,6 @@ def test_hand_calculation_and_trace():
 
 
 def test_full_a51_vector_and_decrypt():
-    """Cho 114 bit bản rõ 0 để bản mã bằng chính dòng khóa tham chiếu A5/1.
-
-    Vector hex chiếm 120 bit, trong đó chỉ 114 bit có nghĩa; zfill khôi phục
-    số 0 đầu và [:114] bỏ phần đệm. Kiểm tra thêm độ dài thanh ghi và giải mã.
-    """
     key = format(0x1223456789ABCDEF, "064b")
     frame = format(0x134, "022b")
     result, stream, rows = process_binary("A5/1", key, frame, "0" * 114)
@@ -65,16 +46,10 @@ def test_full_a51_vector_and_decrypt():
     ],
 )
 def test_binary_input_errors(key, data):
-    """Mỗi cặp key/data trong parametrize phải làm phát sinh ValueError.
-
-    Bao gồm khóa ngắn/dài, ký tự ngoài 0/1, rỗng, khoảng trắng giữa và vượt
-    giới hạn 4096 bit. Không ghi nhận mọi lỗi là đúng: phải đúng loại ValueError.
-    """
     with pytest.raises(ValueError):
         process_binary("TinyA5/1", key, "", data)
 
 
 def test_full_binary_rejects_bad_frame():
-    """Frame nhị phân 21 bit phải bị từ chối, vì A5/1 yêu cầu đúng 22 bit."""
     with pytest.raises(ValueError):
         process_binary("A5/1", "0" * 64, "0" * 21, "0")
