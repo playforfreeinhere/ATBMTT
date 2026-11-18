@@ -2,8 +2,6 @@
 
 from src.a51 import A51Cipher
 from src.tiny_a51 import TinyA51Cipher
-
-
 def validate_bits(value: str, length=None, label="Dữ liệu") -> list[int]:
     """Bỏ khoảng trắng hai đầu, kiểm tra 0/1 và tùy chọn độ dài chính xác."""
     value = value.strip()
@@ -12,7 +10,6 @@ def validate_bits(value: str, length=None, label="Dữ liệu") -> list[int]:
     if length is not None and len(value) != length:
         raise ValueError(f"{label} phải có đúng {length} bit.")
     return [int(bit) for bit in value]
-
 
 def process_binary(algorithm: str, key: str, frame: str, data: str):
     """Tính XOR theo từng bit và ghi trạng thái phục vụ mô phỏng."""
@@ -71,7 +68,6 @@ def process_binary(algorithm: str, key: str, frame: str, data: str):
             }
         )
     return "".join(output), "".join(stream), rows
-
 
 def format_trace(rows) -> str:
     """Chuyển rows thành văn bản nhiều dòng, không chạy lại thuật toán."""
