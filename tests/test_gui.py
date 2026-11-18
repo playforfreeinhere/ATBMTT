@@ -1,15 +1,11 @@
 """KIỂM THỬ XỬ LÝ VĂN BẢN/FILE VÀ CỬA SỔ TKINTER."""
-
 import os
 import sys
 import tkinter as tk
 import time
-
 import pytest
-
 from ui.gui import CipherApp
 from ui.operations import make_cipher, process_file, process_text
-
 
 @pytest.mark.parametrize(
     "algorithm,key",
@@ -34,11 +30,9 @@ def test_text_and_binary_files(tmp_path, algorithm, key):
         process_file(algorithm, key, "0x134", str(first), str(first))
     assert first.read_bytes() == data
 
-
 def test_gui_a51_key_byte_order():
     operation = make_cipher("A5/1", "0x1223456789ABCDEF", "0x134")
     assert operation(bytes(14)).hex() == "534eaa582fe8151ab6e1855a728c"
-
 
 @pytest.mark.parametrize(
     "algorithm,key,frame,text,decrypt",
@@ -53,7 +47,6 @@ def test_gui_a51_key_byte_order():
 def test_bad_input(algorithm, key, frame, text, decrypt):
     with pytest.raises(ValueError):
         process_text(algorithm, key, frame, text, decrypt)
-
 
 @pytest.mark.skipif(
     sys.platform != "win32" and not os.environ.get("DISPLAY"),
@@ -84,7 +77,6 @@ def test_window_text_roundtrip():
     finally:
         app.close()
 
-
 @pytest.mark.skipif(
     sys.platform != "win32" and not os.environ.get("DISPLAY"),
     reason="Requires a display",
@@ -111,18 +103,14 @@ def test_window_binary_roundtrip():
     finally:
         app.close()
 
-
 def test_shared_tiny_key_matches_binary_mode():
     key = "10010101001110100110000"
     from ui.binary import process_binary
-
     expected = process_binary("TinyA5/1", key, "", "01000001")[0]
     assert process_text("TinyA5/1", key, "", "A", False) == f"{int(expected, 2):02x}"
 
-
 def test_shared_full_key_matches_binary_mode():
     from ui.binary import process_binary
-
     key, frame = 0x1223456789ABCDEF, 0x134
     expected = process_binary(
         "A5/1", format(key, "064b"), format(frame, "022b"), "01000001"
