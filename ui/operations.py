@@ -1,9 +1,7 @@
 """XỬ LÝ DỮ LIỆU CHO GIAO DIỆN."""
-
 from pathlib import Path
 from src.a51 import A51Cipher
 from src.tiny_a51 import TinyA51Cipher
-
 
 def parse_unsigned(value: str, bits: int, label: str) -> int:
     """Chuyển value sang số không dấu tối đa bits bit, hoặc báo ValueError."""
@@ -17,8 +15,7 @@ def parse_unsigned(value: str, bits: int, label: str) -> int:
     if not 0 <= number < (1 << bits):
         raise ValueError(f"{label} phải nằm trong khoảng 0 đến {hex((1 << bits) - 1)}.")
     return number
-
-
+    
 def make_cipher(algorithm: str, key: str, frame: str):
     """Tạo bộ sinh mới và trả phương thức process_bytes đã gắn với đối tượng."""
     if algorithm == "TinyA5/1":
@@ -38,7 +35,6 @@ def make_cipher(algorithm: str, key: str, frame: str):
     cipher = A51Cipher(key_bits, parse_unsigned(frame, 22, "Số khung"))
     return cipher.process_bytes
 
-
 def process_text(algorithm: str, key: str, frame: str, text: str, decrypt: bool) -> str:
     """Mã hóa văn bản thành hex hoặc giải mã hex thành văn bản UTF-8."""
     operation = make_cipher(algorithm, key, frame)
@@ -55,7 +51,6 @@ def process_text(algorithm: str, key: str, frame: str, text: str, decrypt: bool)
                 "với dữ liệu nhị phân hãy dùng mục File."
             ) from exc
     return operation(text.encode("utf-8")).hex()
-
 
 def process_file(algorithm: str, key: str, frame: str, source: str, target: str) -> int:
     """Đọc source, ghi target và trả tổng byte đã xử lý."""
