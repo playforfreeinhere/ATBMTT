@@ -2,7 +2,7 @@
 Chương trình Python minh họa hệ mã dòng: mã hóa, giải mã văn bản/file và xem từng bước biến đổi thanh ghi. Giao diện dùng Tkinter.
 
 ## 1. Cài đặt và chạy
-Cài **Python 3.10 trở lên**, có **Tcl/Tk**. Trên Windows, giữ tùy chọn Tcl/Tk khi cài Python. Tải và giải nén toàn bộ file, mở thư mục ATBMTT này trong VS Code rồi chạy
+Cài **Python 3.10 trở lên**, có **Tcl/Tk**. Tải và giải nén toàn bộ file, mở thư mục ATBMTT này trong VS Code rồi chạy
 ```powershell
 py run_gui.py
 ```
