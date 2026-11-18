@@ -2,9 +2,7 @@
 
 import argparse
 from pathlib import Path
-
 from src.tiny_a51 import TinyA51
-
 
 def parse_key(value: str) -> int:
     value = value.strip()
@@ -15,7 +13,6 @@ def parse_key(value: str) -> int:
     if not 0 <= key < (1 << 32):
         raise argparse.ArgumentTypeError("Key must be a 32-bit unsigned integer")
     return key
-
 
 def encrypt_file(in_path: str, out_path: str, key: int):
     source, destination = Path(in_path), Path(out_path)
@@ -30,10 +27,8 @@ def encrypt_file(in_path: str, out_path: str, key: int):
         output.write(result)
     print(f"Processed {in_path} -> {out_path} ({len(data)} bytes)")
 
-
 def decrypt_file(in_path: str, out_path: str, key: int):
     encrypt_file(in_path, out_path, key)
-
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
