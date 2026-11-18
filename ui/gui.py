@@ -1,18 +1,4 @@
-"""GIAO DIỆN TKINTER HAI TAB — chỉ điều phối nhập/xuất và tác vụ nền.
-
-Khởi chạy bằng `py run_gui.py`, không chạy trực tiếp file nằm trong ui/.
-Tab bit = Nhị phân/Tính tay; tab text = Văn bản/File. algorithm, key,
-frame là StringVar dùng chung cho cả hai tab. inputs/outputs lưu widget;
-results lưu kết quả thuần để đưa ngược lên ô nhập, không kèm nhãn hay log.
-
-Luồng bấm nút: run/run_file → submit → worker xử lý → poll nhận kết quả
-→ cập nhật widget. ThreadPoolExecutor chạy việc nặng ngoài luồng giao diện;
-root.after lên lịch kiểm tra kết quả trên luồng chính để Tkinter không đơ.
-Không gọi hàm sửa widget bên trong worker. Khi đang chạy, khóa các nút và
-ô thiết lập để tránh thao tác chồng chéo. Thuật toán nằm trong src/, còn
-UTF-8, khóa và file được xử lý bởi operations.py hoặc binary.py.
-TINY_KEY và A51_KEY chỉ là khóa ví dụ, không tự sinh khóa cho người dùng.
-"""
+"""GIAO DIỆN TKINTER HAI TAB."""
 
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -29,22 +15,8 @@ A51_KEY = "0x1223456789ABCDEF"
 
 
 class CipherApp:
-    """Quản lý một cửa sổ và một worker xử lý dữ liệu.
-
-    Mọi widget và StringVar thuộc đối tượng này; thuật toán được gọi qua
-    các hàm bên ngoài, không cài đặt lại trong lớp giao diện.
-    """
 
     def __init__(self, root):
-        """Tạo trạng thái ứng dụng, thiết lập cửa sổ và xây dựng hai tab.
-
-        root là cửa sổ Tk đã tạo bên ngoài. executor có tối đa một luồng worker;
-        future=None nghĩa là đang rảnh. pending_kind cho biết kết quả thuộc tab nào.
-        inputs/outputs ánh xạ "bit"/"text" tới ô nhập/kết quả; results giữ chuỗi thuần.
-        StringVar liên kết biến Python với widget; set() thay giá trị hiển thị,
-        get() đọc giá trị hiện tại. protocol gắn nút đóng cửa sổ với close().
-        load_example nạp mẫu; tabs.select(1) mở tab thứ hai Văn bản/File lúc đầu.
-        """
         self.root = root
         # Chỉ worker xử lý thuật toán; Tkinter luôn được cập nhật từ luồng chính.
         self.executor = ThreadPoolExecutor(max_workers=1)
@@ -75,12 +47,6 @@ class CipherApp:
         self.tabs.select(1)
 
     def build_settings(self, panel):
-        """Tạo hàng thiết lập thuật toán, khóa, frame và nút nạp ví dụ.
-
-        Combobox readonly chỉ cho chọn hai tên có sẵn. bind liên kết sự kiện
-        đổi lựa chọn với load_example; command ở Button là hàm gọi khi bấm nút.
-        pack(side="left") xếp các thành phần trên cùng hàng từ trái sang phải.
-        """
         ttk.Label(
             panel, text="HỆ MÃ DÒNG — NHÓM 9", font=("Segoe UI", 18, "bold")
         ).pack(anchor="w")
@@ -105,13 +71,6 @@ class CipherApp:
         ttk.Label(panel, textvariable=self.hint, wraplength=1050).pack(anchor="w")
 
     def build_tab(self, mode, title):
-        """Dùng chung một hàm để tạo tab bit hoặc text, tránh lặp toàn bộ bố cục.
-
-        mode quyết định nhãn, ô lịch sử và nút file; title là tên tab. lambda tạo
-        hàm chưa chạy ngay, nhớ mode và chỉ gọi run/reuse khi người dùng bấm nút.
-        Hai tab có ô nhập, ba nút xử lý, ô kết quả. Tab bit thêm trace; tab text
-        thêm hai hộp thoại file. fill="both", expand=True cho phép ô giãn theo cửa sổ.
-        """
         tab = ttk.Frame(self.tabs, padding=10)
         self.tabs.add(tab, text=title)
         label = (
@@ -151,22 +110,12 @@ class CipherApp:
             )
 
     def button(self, parent, label, command):
-        """Tạo nút, lưu vào self.buttons và trả widget để bên gọi bố trí bằng pack.
-
-        Danh sách chung cho phép khóa/mở tất cả nút khi tác vụ nền bắt đầu/kết thúc.
-        """
         button = ttk.Button(parent, text=label, command=command)
         self.buttons.append(button)
         return button
 
     @staticmethod
     def textbox(parent, readonly=False, height=4, wrap="word"):
-        """Tạo ô nhiều dòng có thanh cuộn, trả widget ScrolledText.
-
-        readonly=True làm ô bị disabled để không gõ sửa kết quả. height là số dòng
-        ước lượng; wrap="word" xuống dòng theo từ, "none" giữ nguyên dòng lịch sử.
-        @staticmethod nghĩa là hàm tiện ích này không dùng self.
-        """
         box = ScrolledText(
             parent,
             height=height,
@@ -179,21 +128,12 @@ class CipherApp:
 
     @staticmethod
     def set_output(widget, value):
-        """Thay toàn bộ nội dung ô kết quả rồi khóa nhập trở lại.
-
-        Tkinter Text dùng "1.0" = dòng 1 cột 0, "end" = cuối ô. Widget disabled
-        không cho insert/delete nên phải chuyển normal trước, disabled sau.
-        """
         widget.configure(state="normal")
         widget.delete("1.0", "end")
         widget.insert("1.0", value)
         widget.configure(state="disabled")
 
     def update_algorithm(self):
-        """Bật ô frame cho A5/1, tắt cho Tiny và cập nhật nhắc quy tắc.
-
-        Hàm này không tự đổi khóa hoặc chạy mã hóa; load_example mới nạp khóa mẫu.
-        """
         tiny = self.algorithm.get() == "TinyA5/1"
         self.frame_entry.configure(state="disabled" if tiny else "normal")
         self.hint.set(
@@ -203,12 +143,6 @@ class CipherApp:
         )
 
     def load_example(self, event=None):
-        """Nạp mẫu đúng thuật toán vào cả hai tab và xóa kết quả/lịch sử cũ.
-
-        event=None để dùng được cả callback Combobox (có event) và Button (không có).
-        Nếu future đang tồn tại thì không nạp đè. Tiny dùng 111, A5/1 dùng 114 bit 0
-        để đối chiếu vector. Key/frame/ô nhập đều được reset, không giữ mẫu người dùng.
-        """
         if self.future is not None:
             return
         tiny = self.algorithm.get() == "TinyA5/1"
@@ -229,15 +163,6 @@ class CipherApp:
         )
 
     def run(self, mode, decrypt):
-        """Đọc dữ liệu hiện tại rồi gửi một tác vụ text hoặc bit cho worker.
-
-        mode xác định tab; decrypt chỉ hướng mã hóa/giải mã và nhãn kết quả.
-        get("1.0","end-1c") bỏ ký tự xuống dòng cuối mà Tkinter Text tự thêm.
-        Tab text chuyển thẳng cho process_text. Tab bit chuyển khóa số A5/1 thành
-        64 bit, frame thành 22 bit có đủ số 0 đầu. Tiny đã là chuỗi 23 bit.
-        Hai chiều bit đều dùng cùng process_binary vì XOR đối xứng; direction
-        chỉ quyết định nhãn "Bản rõ" hay "Bản mã" khi poll hiển thị.
-        """
         algorithm, key, frame = self.algorithm.get(), self.key.get(), self.frame.get()
         data = self.inputs[mode].get("1.0", "end-1c")
         if mode == "text":
@@ -255,24 +180,11 @@ class CipherApp:
         self.submit(mode, process_binary, algorithm, key, frame, data)
 
     def reuse(self, mode):
-        """Lấy chuỗi kết quả thuần của tab và đưa về ô nhập để thử chiều ngược lại.
-
-        Không sao chép nhãn, dòng S hay bảng trạng thái; giữ nguyên khóa và frame.
-        Kết quả rỗng thì không sửa ô nhập.
-        """
         if self.results[mode]:
             self.inputs[mode].delete("1.0", "end")
             self.inputs[mode].insert("1.0", self.results[mode])
 
     def run_file(self, decrypt):
-        """Mở hộp chọn đầu vào/đầu ra rồi gửi process_file sang worker.
-
-        Hủy hộp thoại trả chuỗi rỗng và dừng thao tác. Khi mã hóa, tên gợi ý thêm
-        .a51; khi giải mã, bỏ .a51 nếu có và thêm khoi_phuc_. Chỉ đổi tên không
-        làm giải mã: dữ liệu phải thật sự qua process_file với đúng thiết lập.
-        confirmoverwrite=False bỏ câu hỏi ghi đè ở hộp thoại; process_file vẫn
-        mở xb nên file đã tồn tại sẽ bị từ chối, không bị thay thế.
-        """
         if self.future is not None:
             return
         source = filedialog.askopenfilename(
@@ -305,11 +217,6 @@ class CipherApp:
             )
 
     def set_busy(self, busy):
-        """Khóa các nút, khóa thuật toán/khóa/frame khi worker đang chạy.
-
-        Khi xong, khôi phục Combobox readonly và dùng update_algorithm để frame
-        chỉ mở nếu là A5/1. Hàm được gọi trên luồng chính, không ở worker.
-        """
         for button in self.buttons:
             button.configure(state="disabled" if busy else "normal")
         self.selector.configure(state="disabled" if busy else "readonly")
@@ -320,12 +227,6 @@ class CipherApp:
             self.update_algorithm()
 
     def submit(self, kind, function, *args):
-        """Gửi function(*args) vào executor và lên lịch poll sau 50 mili giây.
-
-        *args gom các tham số vị trí cần chuyển cho hàm xử lý. future giữ tác vụ
-        đã gửi, có thể lấy kết quả/lỗi về sau. Nếu đang có future thì bỏ yêu cầu mới.
-        Không gọi result() ngay tại đây vì sẽ chặn cửa sổ cho tới khi xử lý xong.
-        """
         if self.future is not None:
             return
         self.pending_kind = kind
@@ -335,15 +236,6 @@ class CipherApp:
         self.root.after(50, self.poll)
 
     def poll(self):
-        """Kiểm tra worker đã xong và hiển thị kết quả trên luồng Tkinter.
-
-        future.done() chưa xong thì after(50, poll) hẹn lần kiểm tra tiếp, không đệ
-        quy đồng bộ. future.result() trả dữ liệu hoặc ném lại lỗi từ worker.
-        file trả số byte; bit trả (output, stream, rows); text trả một chuỗi.
-        results chỉ giữ output thuần, display có thể thêm nhãn/dòng S để người đọc.
-        except hiển thị lỗi; finally luôn xóa future và mở lại điều khiển,
-        kể cả khi tác vụ thất bại. Không sửa hoặc xóa dữ liệu đầu vào ở đây.
-        """
         if not self.future.done():
             self.root.after(50, self.poll)
             return
@@ -372,11 +264,6 @@ class CipherApp:
             self.set_busy(False)
 
     def close(self):
-        """Chỉ đóng khi worker đã được thu kết quả và future trở về None.
-
-        Nếu còn tác vụ thì nhắc chờ. shutdown(wait=False) dừng nhận việc mới;
-        root.destroy() hủy cửa sổ, làm vòng mainloop kết thúc.
-        """
         if self.future is not None:
             messagebox.showinfo(
                 "Đang xử lý",
@@ -389,16 +276,10 @@ class CipherApp:
 
 
 def main():
-    """Tạo cửa sổ gốc, gắn CipherApp và chạy vòng sự kiện mainloop.
-
-    Tk() tạo môi trường GUI; mainloop lắng nghe bấm nút, gõ và callback after
-    cho tới khi đóng. Import ui.gui không tự chạy hàm này.
-    """
     root = tk.Tk()
     CipherApp(root)
     root.mainloop()
 
 
-# Khối dưới chỉ chạy khi thực thi file/module trực tiếp, không chạy khi import.
 if __name__ == "__main__":
     main()
