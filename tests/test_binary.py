@@ -1,11 +1,7 @@
 """KIỂM THỬ CHUỖI BIT VÀ LỊCH SỬ."""
-
 import pytest
-
 from ui.binary import process_binary, format_trace
-
 KEY = "10010101001110100110000"
-
 
 def test_hand_calculation_and_trace():
     result, stream, rows = process_binary("TinyA5/1", KEY, "", "111")
@@ -23,7 +19,6 @@ def test_hand_calculation_and_trace():
     assert process_binary("TinyA5/1", KEY, "", result)[0] == "111"
     assert "Bước 1" in format_trace(rows)
 
-
 def test_full_a51_vector_and_decrypt():
     key = format(0x1223456789ABCDEF, "064b")
     frame = format(0x134, "022b")
@@ -32,7 +27,6 @@ def test_full_a51_vector_and_decrypt():
     assert result == stream == expected
     assert process_binary("A5/1", key, frame, result)[0] == "0" * 114
     assert [len(value) for value in rows[0]["before"]] == [19, 22, 23]
-
 
 @pytest.mark.parametrize(
     "key,data",
@@ -48,7 +42,6 @@ def test_full_a51_vector_and_decrypt():
 def test_binary_input_errors(key, data):
     with pytest.raises(ValueError):
         process_binary("TinyA5/1", key, "", data)
-
 
 def test_full_binary_rejects_bad_frame():
     with pytest.raises(ValueError):
