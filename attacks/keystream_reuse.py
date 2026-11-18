@@ -1,7 +1,5 @@
 """DEMO TÁI SỬ DỤNG DÒNG KHÓA."""
-
 from src.tiny_a51 import TinyA51
-
 
 def demo_reuse(plain1: bytes, plain2: bytes, key: int):
     t1 = TinyA51(key)
@@ -12,8 +10,7 @@ def demo_reuse(plain1: bytes, plain2: bytes, key: int):
     # XOR hai bản mã triệt tiêu S ở các vị trí bị tái sử dụng.
     xored = bytes(a ^ b for a, b in zip(c1, c2))
     return c1, c2, xored
-
-
+    
 if __name__ == "__main__":
     p1 = b"Hello, this is message A.".ljust(64, b" ")
     p2 = b"Attack at dawn! This is message B.".ljust(64, b" ")
