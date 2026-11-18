@@ -6,10 +6,7 @@ Cài **Python 3.10 trở lên**, có **Tcl/Tk**. Trên Windows, giữ tùy chọ
 ```powershell
 py run_gui.py
 ```
-hoặc bấm vào file run_gui.py rồi bấm nút chạy bên trên góc trái màn hình VS.
-
-Trên Linux/macOS, thay `py` bằng `python3`. Nếu báo thiếu `tkinter`, cài thành phần Tkinter phù hợp với bản Python đang dùng.
-Không cần cài thư viện ngoài để chạy giao diện, CLI hoặc demo. `requirements.txt` chỉ chứa pytest cho kiểm thử.
+hoặc bấm vào file run_gui.py rồi bấm nút chạy bên trên góc phải màn hình VS.
 
 ## 2. Sử dụng giao diện
 - Chọn TinyA5/1 hoặc A5/1, nhập khóa; chọn **Nạp ví dụ** để lấy dữ liệu mẫu.
