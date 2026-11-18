@@ -29,34 +29,20 @@ Không cần cài thư viện ngoài để chạy giao diện, CLI hoặc demo. 
 
 Cả hai tab dùng chung bộ thiết lập. Tiny theo slide: thanh ghi 6/8/9 bit, clock 1/3/3, tap 2/4/5 — 6/7 — 2/7/8, lấy S sau khi dịch. Xem [ví dụ tính tay](docs/tiny_hand_example.md).
 
-## 3. Đọc mã nguồn
-
-Đọc theo thứ tự: lõi thuật toán → xử lý dữ liệu → giao diện → kiểm thử.
-
-Mỗi file Python đều có giải thích tiếng Việt ở đầu file và trước từng lớp/hàm: mục đích, tham số, kết quả, biến quan trọng và các bước xử lý. Các phép XOR/dịch bit, quy ước khóa, thao tác file và luồng nền có chú thích riêng. Những phần này là tài liệu trong code, không thay đổi thuật toán.
+## 3. Cấu trúc mã nguồn
 
 | File/thư mục | Chức năng |
 | --- | --- |
-| `run_gui.py` | Điểm khởi chạy duy nhất của giao diện |
-| `src/a51.py` | A5/1 đầy đủ: nạp khóa/frame, dịch, sinh S, XOR byte |
-| `src/tiny_a51.py` | TinyA5/1: sinh S và lịch sử từng bước |
-| `ui/operations.py` | Kiểm tra khóa, xử lý văn bản và file; không phụ thuộc Tkinter |
-| `ui/binary.py` | Xử lý chuỗi bit và định dạng bảng bước trung gian |
-| `ui/gui.py` | Cửa sổ, hai tab và các nút; chạy tác vụ nặng ở luồng nền |
-| `ui/cli.py` | Mã hóa/giải mã file bằng dòng lệnh |
-| `tests/` | Kiểm thử lõi, dữ liệu, CLI và giao diện |
-| `attacks/keystream_reuse.py` | Demo tác hại của dùng lại dòng khóa |
-| `test.py` | Demo tổng hợp và kiểm tra khôi phục tệp văn bản |
-| `data/sample_plain.txt` | Tệp văn bản mẫu |
+| `run_gui.py` | Khởi chạy giao diện |
+| `src/a51.py`, `src/tiny_a51.py` | Cài đặt A5/1 và TinyA5/1 |
+| `ui/operations.py`, `ui/binary.py` | Xử lý dữ liệu và mô phỏng bit |
+| `ui/gui.py`, `ui/cli.py` | Giao diện Tkinter và dòng lệnh |
+| `tests/` | Kiểm thử tự động |
+| `test.py` | Demo tổng hợp |
+| `attacks/keystream_reuse.py` | Demo rủi ro tái sử dụng dòng khóa |
+| `data/`, `docs/` | Dữ liệu mẫu và tài liệu |
 
-Tất cả mã thực thi là Python. Thư mục đã được đưa ra gốc; không còn `ATBMTT-main/ATBMTT-main`, bản web hay các file mở nhanh trùng lặp.
-
-Các file còn lại đều có mục đích riêng:
-
-- `test.py` là demo chạy trực tiếp; `tests/` là kiểm thử tự động, không phải hai bản thuật toán trùng nhau.
-- `ui/cli.py` là lựa chọn chạy bằng dòng lệnh, không cần mở cửa sổ.
-- `README.md`, `docs/` là tài liệu; `requirements.txt` liệt kê phụ thuộc kiểm thử; `data/` là dữ liệu mẫu. Chúng không phải mã chạy bằng ngôn ngữ lập trình khác.
-- Cấu hình Git bỏ qua cache được giữ để tránh đưa file tạm lên repository. Không cần cấu hình ép thống kê ngôn ngữ vì toàn bộ mã nguồn đã là Python.
+Mã nguồn và bài kiểm thử được viết bằng Python. Đóng góp từng thành viên được ghi tại [lịch sử commit](https://github.com/playforfreeinhere/ATBMTT/commits/main/).
 
 ## 4. Kiểm thử và demo
 
