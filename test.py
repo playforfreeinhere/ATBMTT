@@ -1,36 +1,19 @@
-"""DEMO TỔNG HỢP CHẠY TRỰC TIẾP."""
-
-Không phải file chính mở GUI và không cài đặt lại lõi thuật toán.
-run_tests() kiểm tra ví dụ Tiny và vòng mã hóa/giải mã byte của A5/1.
-main() tạo tệp UTF-8 tạm, mã hóa, giải mã và so sánh toàn bộ byte.
-TemporaryDirectory tự dọn dữ liệu demo khi thoát khối with.
-assert kiểm tra điều kiện; nếu sai, Python ném AssertionError và dừng.
-Bộ pytest chi tiết nằm trong tests/; demo này giúp trình bày trên lớp.
-Lưu ý: hàm chuyển khóa số trong file demo nạp bit thấp của TOÀN SỐ trước,
-khác cách GUI hiển thị 8 byte big-endian rồi nạp bit thấp trong từng byte.
-Vì vậy cùng số khóa không đảm bảo bản mã demo này giống bản GUI.
-"""."""
-
+"""DEMO TỔNG HỢP CHẠY TRỰC TIẾP.""" # File kiểm tra và trình diễn hoạt động của hai thuật toán mã hóa A5/1 và TinyA5/1.
 from pathlib import Path
 from tempfile import TemporaryDirectory
-
 from src.a51 import A51Cipher
 from src.tiny_a51 import TinyA51Cipher
 
-
 def encrypt_decrypt_bytes(data: bytes, key_64bit: int, frame_22bit: int) -> bytes:
-
     Kiểm tra khóa 64 bit; frame do A51Cipher kiểm tra. Ở riêng demo này,
-    (key_64bit >> i) & 1 tách toàn số từ bit thấp lên, không dùng quy ước
+    (key_64bit >> i) & 1 tách toàn bộ số từ bit thấp lên, không dùng quy ước
     8 byte big-endian của GUI. Hai chiều đều dùng cùng quy ước nên khôi phục đúng.
     if not isinstance(key_64bit, int) or not 0 <= key_64bit < (1 << 64):
         raise ValueError("Key must be a 64-bit unsigned integer")
     key_bits = [(key_64bit >> i) & 1 for i in range(64)]
     return A51Cipher(key_bits, frame_22bit).process_bytes(data)
 
-
 def encrypt_file(input_path: str, output_path: str, key: int, frame: int):
-
     open("xb") không ghi đè file đã có. Đây là helper demo file nhỏ, không
     phải hàm đọc theo khối đang được giao diện sử dụng.
     result = encrypt_decrypt_bytes(Path(input_path).read_bytes(), key, frame)
@@ -38,9 +21,7 @@ def encrypt_file(input_path: str, output_path: str, key: int, frame: int):
         output.write(result)
     print(f"Processed {input_path} -> {output_path} ({len(result)} bytes)")
 
-
 def run_tests():
-
     assert so sánh đầu ra dự kiến; tạo lại bộ mã hóa khi giải mã để reset S.
     Không thay thế bộ pytest vốn có nhiều ca dữ liệu sai và vector chuẩn.
     cipher = TinyA51Cipher(
@@ -58,7 +39,6 @@ def run_tests():
 
 
 def main():
-
     Câu có dấu lặp 100 lần, encode UTF-8 làm số byte khác số ký tự.
     TemporaryDirectory sinh thư mục riêng, tự dọn cả bản rõ, bản mã và bản khôi
     phục khi thoát with. So sánh read_bytes xác nhận chính xác mọi byte.
