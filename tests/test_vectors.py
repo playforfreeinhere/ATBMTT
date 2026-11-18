@@ -1,5 +1,4 @@
 """KIỂM THỬ LÕI, VECTOR THAM CHIẾU, CLI VÀ DEMO DÙNG LẠI DÒNG KHÓA."""
-
 import pytest
 from src.tiny_a51 import TinyA51
 def test_keystream_repeatability():
@@ -10,7 +9,6 @@ def test_keystream_repeatability():
     b = t2.keystream_bytes(16)
     assert a == b
 
-
 def test_encrypt_decrypt_roundtrip():
     key = 0xDEADBEEF
     t = TinyA51(key)
@@ -20,7 +18,6 @@ def test_encrypt_decrypt_roundtrip():
     t2 = TinyA51(key)
     p = t2.decrypt(c)
     assert p == data
-    
 from src.a51 import A51Cipher
 from src.tiny_a51 import TinyA51Cipher
 from attacks.keystream_reuse import demo_reuse
@@ -40,7 +37,6 @@ def test_a51_published_vector(): # Kiểm tra kết quả của thuật toán A5
         )
         assert packed.hex() == expected
 
-
 def test_tiny_hand_vector():
     # Biến thể theo slide: lấy đầu ra sau khi dịch thanh ghi.
     cipher = TinyA51Cipher(
@@ -52,20 +48,17 @@ def test_tiny_hand_vector():
     assert logs[0]["clocked"] == (True, True, False)
     assert logs[0]["r1"] == [1, 1, 0, 0, 1, 0]
 
-
 def test_reuse_attack():
     p1, p2 = b"Hello world!", b"Attack at dawn!"
     c1, c2, result = demo_reuse(p1, p2, 0x12345)
     assert c1 != p1 and c2 != p2
     assert result == bytes(a ^ b for a, b in zip(p1, p2))
 
-
 @pytest.mark.parametrize("key", [-1, 1 << 32, "invalid"])
 def test_invalid_tiny_key(key):
     with pytest.raises(ValueError):
         TinyA51(key)
-
-
+        
 @pytest.mark.parametrize(
     "key,frame",
     [
@@ -80,18 +73,15 @@ def test_invalid_tiny_key(key):
 def test_invalid_a51_input(key, frame):
     with pytest.raises(ValueError):
         A51Cipher(key, frame)
-
-
+        
 def test_invalid_tiny_registers():
     with pytest.raises(ValueError):
         TinyA51Cipher([0] * 6, [0] * 7, [0] * 9)
-
 
 @pytest.mark.parametrize("data", [b"", bytes(range(256)), "Xin chào Việt Nam".encode()])
 def test_cli_roundtrip(tmp_path, data):
     import subprocess
     import sys
-
     source, encrypted, decrypted = (
         tmp_path / name for name in ("plain", "cipher", "back")
     )
@@ -116,14 +106,12 @@ def test_cli_roundtrip(tmp_path, data):
         assert result.returncode == 0, result.stderr
     assert decrypted.read_bytes() == data
 
-
 @pytest.mark.parametrize(
     "case", ["bad-key", "missing-input", "existing-output", "same-file"]
 )
 def test_cli_errors_preserve_files(tmp_path, case):
     import subprocess
     import sys
-
     source, output = tmp_path / "input", tmp_path / "output"
     source.write_bytes(b"original input")
     output.write_bytes(b"original output")
@@ -139,7 +127,6 @@ def test_cli_errors_preserve_files(tmp_path, case):
     assert "Traceback" not in result.stderr
     assert source.read_bytes() == b"original input"
     assert output.read_bytes() == b"original output"
-
 
 def test_tiny_chunked_processing():
     data = bytes(range(128))
