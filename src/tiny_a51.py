@@ -1,34 +1,27 @@
-"""LÕI TINYA5/1 THEO SLIDE."""
-
-
+"""TINYA5/1."""
 class TinyA51Cipher:
     """Bộ sinh Tiny từ ba danh sách bit và các phép xử lý dùng chung."""
-
     def __init__(self, r1_init: list[int], r2_init: list[int], r3_init: list[int]):
         """Kiểm tra độ dài 6/8/9 và mọi phần tử phải là 0 hoặc 1."""
         for bits, size in ((r1_init, 6), (r2_init, 8), (r3_init, 9)):
             if len(bits) != size or any(bit not in (0, 1) for bit in bits):
                 raise ValueError(f"Register must contain exactly {size} bits")
         self.r1, self.r2, self.r3 = list(r1_init), list(r2_init), list(r3_init)
-
     def _clock_r1(self):
         """Tính phản hồi từ tap 2,4,5; dịch R1 và trả bit phản hồi để ghi log."""
         feedback = self.r1[2] ^ self.r1[4] ^ self.r1[5]
         self.r1 = [feedback] + self.r1[:-1]
         return feedback
-
     def _clock_r2(self):
         """Dịch R2 dùng XOR tap 6,7; trả feedback và giữ độ dài 8 bit."""
         feedback = self.r2[6] ^ self.r2[7]
         self.r2 = [feedback] + self.r2[:-1]
         return feedback
-
     def _clock_r3(self):
         """Dịch R3 dùng XOR tap 2,7,8; trả feedback và giữ độ dài 9 bit."""
         feedback = self.r3[2] ^ self.r3[7] ^ self.r3[8]
         self.r3 = [feedback] + self.r3[:-1]
         return feedback
-
     def step_verbose(self, step_number: int) -> tuple[int, dict]:
         """Thực hiện một nhịp Tiny, trả (bit_S, log)."""
         # Phải chụp đủ clock cũ trước khi gọi bất kỳ _clock_r* nào.
@@ -54,12 +47,10 @@ class TinyA51Cipher:
             "keystream_bit": bit,
         }
         return bit, log
-
     def get_keystream_bit(self) -> int:
         """Trả riêng S cho xử lý byte bằng cách bỏ phần log của step_verbose(0)."""
         bit, _ = self.step_verbose(0)
         return bit
-
     def generate_keystream(self, length: int) -> tuple[list[int], list[dict]]:
         """Sinh length bit liên tiếp, trả (danh_sách_S, danh_sách_log)."""
         if not isinstance(length, int) or length < 0:
@@ -70,7 +61,6 @@ class TinyA51Cipher:
             stream.append(bit)
             logs.append(log)
         return stream, logs
-
     def process_bits(self, bit_stream: list[int]):
         """Nhận list bit, trả (kết_quả_XOR, dòng_S, lịch_sử)."""
         if any(bit not in (0, 1) for bit in bit_stream):
@@ -78,7 +68,6 @@ class TinyA51Cipher:
         stream, logs = self.generate_keystream(len(bit_stream))
         output = [bit ^ mask for bit, mask in zip(bit_stream, stream)]
         return output, stream, logs
-
     def keystream_bytes(self, length: int) -> bytes:
         """Sinh length byte dòng khóa, mỗi byte ghép từ 8 bit liên tiếp."""
         if not isinstance(length, int) or length < 0:
@@ -90,20 +79,15 @@ class TinyA51Cipher:
                 byte = (byte << 1) | self.get_keystream_bit()
             output.append(byte)
         return bytes(output)
-
     def process_bytes(self, data: bytes) -> bytes:
         """Trả byte dữ liệu XOR với byte dòng khóa tương ứng."""
         return bytes(
             byte ^ mask for byte, mask in zip(data, self.keystream_bytes(len(data)))
         )
-
     encrypt = process_bytes
     decrypt = process_bytes
-
-
 class TinyA51(TinyA51Cipher):
     """Lớp con của TinyA51Cipher, giữ cách nhập khóa số 32 bit cho CLI."""
-
     def __init__(self, key: int):
         """Chuyển số nguyên không dấu 32 bit thành trạng thái Tiny 23 bit."""
         if not isinstance(key, int) or not 0 <= key < (1 << 32):
@@ -111,8 +95,6 @@ class TinyA51(TinyA51Cipher):
         state = (key & ((1 << 23) - 1)) ^ (key >> 23)
         bits = [(state >> i) & 1 for i in range(23)]
         super().__init__(bits[:6], bits[6:14], bits[14:])
-
-
 if __name__ == "__main__":
     key = "10010101001110100110000"
     bits = [int(bit) for bit in key]
