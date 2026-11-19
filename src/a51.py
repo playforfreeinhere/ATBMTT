@@ -49,33 +49,34 @@ class A51Cipher:
             self.clock(ignore_majority=True)
             self.r1[0] ^= bit
             self.r2[0] ^= bit
-            self.r3[0] ^= bit
-        for _ in range(100):
-            self.clock()
-  
-    def get_keystream_bit(self) -> int:
+            self.r3[0] ^= bit # Mỗi lần lặp: 1. Dịch cả ba thanh ghi một nhịp 2. Lấy một bit của khóa hoặc frame 3. XOR bit đó vào vị trí đầu của cả ba thanh ghi.
+            # Mục đích là đưa thông tin khóa bí mật và số khung vào trạng thái của bộ sinh dòng khóa.
+        for _ in range(100): # Chạy lặp lại đúng 100 lần.
+            self.clock() # Dịch các thanh ghi theo Majority. Mục đích là trộn trạng thái các thanh ghi sau khi nạp khóa và frame, trước khi sinh dòng khóa sử dụng để mã hóa.
+    
+    def get_keystream_bit(self) -> int: # Hàm sinh một bit dòng khóa
         """Tiến bộ sinh một nhịp và trả một bit dòng khóa 0/1."""
-        self.clock()
-        return self.r1[18] ^ self.r2[21] ^ self.r3[22]
+        self.clock() # Dịch các thanh ghi theo Majority
+        return self.r1[18] ^ self.r2[21] ^ self.r3[22] # Trả về hàm xor của 3 bit cuối (Tính ra S)
   
-    def process_bytes(self, data: bytes) -> bytes:
+    def process_bytes(self, data: bytes) -> bytes: # Hàm mã hóa và giải mã dữ liệu
         """XOR dữ liệu bytes với dòng khóa; trả bytes có cùng độ dài."""
-        output = bytearray()
-        for byte in data:
+        output = bytearray() # Tạo vùng chứa kết quả (hiện tại kết quả đang rỗng)
+        for byte in data: # Duyệt từng byte dữ liệu
             # Mỗi byte có mặt nạ mới, nhưng trạng thái bộ sinh vẫn tiếp tục từ byte trước.
-            mask = 0
-            for _ in range(8):
-                mask = (mask << 1) | self.get_keystream_bit()
-            output.append(byte ^ mask)
-        return bytes(output)
+            mask = 0 # Gán
+            for _ in range(8): # Chạy lặp lại 8 lần
+                mask = (mask << 1) | self.get_keystream_bit() # Dịch bit sang trái; sinh bit dòng khóa mới | :là phép OR (hoặc)ghép bit vừa sinh vào vị trí cuối.) 
+            output.append(byte ^ mask) # XOR với dữ liệu (bản rõ)
+        return bytes(output) # Trả về kết quả
 
-if __name__ == "__main__":
-    key = [1] * 32 + [0] * 32
-    frame = 0x12345
-    plain = "Hệ mã dòng A5/1 — Nhóm 9".encode("utf-8")
-    encrypted = A51Cipher(key, frame).process_bytes(plain)
-    restored = A51Cipher(key, frame).process_bytes(encrypted)
-    print("Bản rõ:", plain.decode("utf-8"))
+if __name__ == "__main__": # Chạy thử chương trình
+    key = [1] * 32 + [0] * 32 # Khởi tạo khóa 32 bit 1 và 32 bit 0
+    frame = 0x12345 # Khung
+    plain = "Hệ mã dòng A5/1 — Nhóm 9".encode("utf-8") # Chuyển bản rõ sang byte
+    encrypted = A51Cipher(key, frame).process_bytes(plain) # Mã hóa
+    restored = A51Cipher(key, frame).process_bytes(encrypted) # Giải mã
+    print("Bản rõ:", plain.decode("utf-8")) # In
     print("Bản mã hex:", encrypted.hex())
     print("Khôi phục:", restored.decode("utf-8"))
-    assert restored == plain
+    assert restored == plain # kiểm tra kết quả
