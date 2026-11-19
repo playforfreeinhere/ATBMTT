@@ -45,7 +45,7 @@ class A51Cipher:
         # Frame nạp LSB trước: dịch phải i vị trí rồi & 1 giữ riêng bit đó.
         frame_bits = [(frame_number >> i) & 1 for i in range(22)] # Chuyển số nguyên thành dạng nhị phân 22 bit có dạng 0,1; dịch i lần, lấy bit thấp nhất rồi lặp lại 22 lần
         # Hai giai đoạn nạp dùng cùng phép dịch và XOR bit vào vị trí 0.
-        for bit in list(key) + frame_bits:
+        for bit in list(key) + frame_bits: # Thực hiện lặp 86 lần listkey(64 bit) + framebit(22 bit)
             self.clock(ignore_majority=True)
             self.r1[0] ^= bit
             self.r2[0] ^= bit
