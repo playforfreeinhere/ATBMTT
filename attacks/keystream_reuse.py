@@ -21,3 +21,7 @@ if __name__ == "__main__":
     expected = bytes(a ^ b for a, b in zip(p1, p2))
     print("p1^p2:", expected.hex())
     assert x == expected
+"""Chương trình minh họa lỗ hổng tái sử dụng dòng khóa trong TinyA5/1.
+Đầu tiên, hai bản rõ được mã hóa bằng cùng một khóa và cùng trạng thái khởi tạo, dẫn đến việc sinh ra hai dòng khóa giống nhau
+Sau đó, chương trình thực hiện XOR hai bản mã và chứng minh rằng kết quả bằng XOR của hai bản rõ, do dòng khóa đã bị triệt tiêu. Cuối cùng, lệnh assert kiểm tra tính chính xác của kết quả.
+Qua đó cho thấy việc tái sử dụng dòng khóa làm suy giảm tính bảo mật của hệ mã dòng."""
