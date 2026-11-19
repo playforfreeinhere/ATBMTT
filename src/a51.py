@@ -10,6 +10,7 @@ class A51Cipher:
             raise ValueError("Provide both key and frame_number")
         if key is not None:
             self.setup_key(key, frame_number)
+    
     def _clock_r1(self):
         """Dịch R1 một nhịp với phản hồi r1[13] ^ r1[16] ^ r1[17] ^ r1[18]."""
         feedback = self.r1[13] ^ self.r1[16] ^ self.r1[17] ^ self.r1[18]
@@ -22,6 +23,7 @@ class A51Cipher:
         """Dịch R3 một nhịp: XOR bốn tap 7,20,21,22 rồi nạp vào index 0."""
         feedback = self.r3[7] ^ self.r3[20] ^ self.r3[21] ^ self.r3[22]
         self.r3 = [feedback] + self.r3[:-1]
+    
     def clock(self, ignore_majority: bool = False):
         """Quyết định thanh ghi nào dịch trong một nhịp; không trả bit S."""
         clocks = (self.r1[8], self.r2[10], self.r3[10])
@@ -32,6 +34,7 @@ class A51Cipher:
             self._clock_r2()
         if ignore_majority or clocks[2] == majority:
             self._clock_r3()
+   
     def setup_key(self, key: list[int], frame_number: int):
         """Reset rồi nạp khóa, nạp frame và khởi động bộ sinh dòng khóa."""
         if len(key) != 64 or any(bit not in (0, 1) for bit in key):
@@ -49,10 +52,12 @@ class A51Cipher:
             self.r3[0] ^= bit
         for _ in range(100):
             self.clock()
+  
     def get_keystream_bit(self) -> int:
         """Tiến bộ sinh một nhịp và trả một bit dòng khóa 0/1."""
         self.clock()
         return self.r1[18] ^ self.r2[21] ^ self.r3[22]
+  
     def process_bytes(self, data: bytes) -> bytes:
         """XOR dữ liệu bytes với dòng khóa; trả bytes có cùng độ dài."""
         output = bytearray()
@@ -63,6 +68,7 @@ class A51Cipher:
                 mask = (mask << 1) | self.get_keystream_bit()
             output.append(byte ^ mask)
         return bytes(output)
+
 if __name__ == "__main__":
     key = [1] * 32 + [0] * 32
     frame = 0x12345
