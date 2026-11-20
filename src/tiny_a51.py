@@ -1,4 +1,4 @@
-"""TINYA5/1."""
+"""TINYA5/1.""" # Khởi tạo thanh ghi → Tính Majority → Dịch thanh ghi → Sinh dòng khóa → XOR với bản rõ → Tạo bản mã.
 class TinyA51Cipher:
     """Bộ sinh Tiny từ ba danh sách bit và các phép xử lý dùng chung."""
     def __init__(self, r1_init: list[int], r2_init: list[int], r3_init: list[int]):
