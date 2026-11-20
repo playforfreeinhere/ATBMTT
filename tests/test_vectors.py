@@ -1,7 +1,7 @@
 """KIỂM THỬ LÕI, VECTOR THAM CHIẾU, CLI VÀ DEMO DÙNG LẠI DÒNG KHÓA."""
 import pytest
 from src.tiny_a51 import TinyA51
-def test_keystream_repeatability():
+def test_keystream_repeatability(): # Kiểm tra tính lặp lại của dòng khóa
     key = 0x1A2B3C
     t1 = TinyA51(key)
     t2 = TinyA51(key)
@@ -9,7 +9,7 @@ def test_keystream_repeatability():
     b = t2.keystream_bytes(16)
     assert a == b
 
-def test_encrypt_decrypt_roundtrip():
+def test_encrypt_decrypt_roundtrip(): # Kiểm tra quá trình mã hóa và giải mã
     key = 0xDEADBEEF
     t = TinyA51(key)
     data = b"Test data for encryption".ljust(32, b"\x00")
@@ -37,7 +37,7 @@ def test_a51_published_vector(): # Kiểm tra kết quả của thuật toán A5
         )
         assert packed.hex() == expected
 
-def test_tiny_hand_vector():
+def test_tiny_hand_vector(): # Kiểm tra TinyA5/1 bằng ví dụ tính tay
     # Biến thể theo slide: lấy đầu ra sau khi dịch thanh ghi.
     cipher = TinyA51Cipher(
         [1, 0, 0, 1, 0, 1], [0, 1, 0, 0, 1, 1, 1, 0], [1, 0, 0, 1, 1, 0, 0, 0, 0]
@@ -48,7 +48,7 @@ def test_tiny_hand_vector():
     assert logs[0]["clocked"] == (True, True, False)
     assert logs[0]["r1"] == [1, 1, 0, 0, 1, 0]
 
-def test_reuse_attack():
+def test_reuse_attack(): # Kiểm tra hiện tượng tái sử dụng dòng khóa
     p1, p2 = b"Hello world!", b"Attack at dawn!"
     c1, c2, result = demo_reuse(p1, p2, 0x12345)
     assert c1 != p1 and c2 != p2
@@ -59,7 +59,7 @@ def test_invalid_tiny_key(key):
     with pytest.raises(ValueError):
         TinyA51(key)
         
-@pytest.mark.parametrize(
+@pytest.mark.parametrize( # Kiểm tra khóa TinyA5/1 không hợp lệ
     "key,frame",
     [
         ([0] * 63, 0),
@@ -70,15 +70,15 @@ def test_invalid_tiny_key(key):
         ([0] * 64, None),
     ],
 )
-def test_invalid_a51_input(key, frame):
+def test_invalid_a51_input(key, frame): 
     with pytest.raises(ValueError):
         A51Cipher(key, frame)
         
-def test_invalid_tiny_registers():
+def test_invalid_tiny_registers(): # Kiểm tra kích thước thanh ghi TinyA5/1
     with pytest.raises(ValueError):
         TinyA51Cipher([0] * 6, [0] * 7, [0] * 9)
 
-@pytest.mark.parametrize("data", [b"", bytes(range(256)), "Xin chào Việt Nam".encode()])
+@pytest.mark.parametrize("data", [b"", bytes(range(256)), "Xin chào Việt Nam".encode()]) # Kiểm tra mã hóa và giải mã tệp qua CLI
 def test_cli_roundtrip(tmp_path, data):
     import subprocess
     import sys
@@ -106,7 +106,7 @@ def test_cli_roundtrip(tmp_path, data):
         assert result.returncode == 0, result.stderr
     assert decrypted.read_bytes() == data
 
-@pytest.mark.parametrize(
+@pytest.mark.parametrize( # Kiểm tra CLI khi xảy ra lỗi
     "case", ["bad-key", "missing-input", "existing-output", "same-file"]
 )
 def test_cli_errors_preserve_files(tmp_path, case):
@@ -128,9 +128,14 @@ def test_cli_errors_preserve_files(tmp_path, case):
     assert source.read_bytes() == b"original input"
     assert output.read_bytes() == b"original output"
 
-def test_tiny_chunked_processing():
+def test_tiny_chunked_processing(): # Kiểm tra xử lý dữ liệu theo từng phần
     data = bytes(range(128))
     cipher = TinyA51(0xDEADBEEF)
     assert cipher.encrypt(data[:7]) + cipher.encrypt(data[7:]) == TinyA51(
         0xDEADBEEF
     ).encrypt(data)
+""" 
+Sử dụng thư viện pytest để xây dựng bộ kiểm thử tự động cho thuật toán A5/1 và TinyA5/1. 
+Các bài kiểm thử tập trung vào tính chính xác của dòng khóa, đối chiếu với vector tham chiếu, kiểm tra mã hóa và giải mã, xử lý dữ liệu tệp, phát hiện đầu vào không hợp lệ và bảo toàn dữ liệu khi xảy ra lỗi.
+Minh họa rủi ro tái sử dụng dòng khóa thông qua phép XOR giữa hai bản mã.
+Bộ kiểm thử gồm 11 hàm với 24 trường hợp nhằm đánh giá tính đúng đắn và độ tin cậy của chương trình. """
