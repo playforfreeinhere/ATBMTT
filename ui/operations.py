@@ -3,7 +3,7 @@ from pathlib import Path
 from src.a51 import A51Cipher
 from src.tiny_a51 import TinyA51Cipher
 
-def parse_unsigned(value: str, bits: int, label: str) -> int:
+def parse_unsigned(value: str, bits: int, label: str) -> int: # Kiểm tra khóa và số khung
     """Chuyển value sang số không dấu tối đa bits bit, hoặc báo ValueError."""
     try:
         text = value.strip()
@@ -16,26 +16,26 @@ def parse_unsigned(value: str, bits: int, label: str) -> int:
         raise ValueError(f"{label} phải nằm trong khoảng 0 đến {hex((1 << bits) - 1)}.")
     return number
     
-def make_cipher(algorithm: str, key: str, frame: str):
+def make_cipher(algorithm: str, key: str, frame: str):  # Khởi tạo bộ mã hóa
     """Tạo bộ sinh mới và trả phương thức process_bytes đã gắn với đối tượng."""
-    if algorithm == "TinyA5/1":
+    if algorithm == "TinyA5/1": # Trường hợp TinyA5/1
         bits = key.strip()
         if len(bits) != 23 or any(bit not in "01" for bit in bits):
             raise ValueError("Khóa TinyA5/1 phải có đúng 23 bit 0/1.")
         state = [int(bit) for bit in bits]
         cipher = TinyA51Cipher(state[:6], state[6:14], state[14:])
         return cipher.process_bytes
-    if algorithm != "A5/1":
+    if algorithm != "A5/1": # Trường hợp thuật toán không hợp lệ
         raise ValueError("Thuật toán không hợp lệ.")
-    number = parse_unsigned(key, 64, "Khóa A5/1")
+    number = parse_unsigned(key, 64, "Khóa A5/1") # Kiểm tra khóa A5/1
     # Khóa hiển thị theo byte big-endian; nạp bit thấp trước trong từng byte.
-    key_bits = [
+    key_bits = [ # Chuyển khóa thành danh sách bit
         (byte >> bit) & 1 for byte in number.to_bytes(8, "big") for bit in range(8)
     ]
     cipher = A51Cipher(key_bits, parse_unsigned(frame, 22, "Số khung"))
     return cipher.process_bytes
 
-def process_text(algorithm: str, key: str, frame: str, text: str, decrypt: bool) -> str:
+def process_text(algorithm: str, key: str, frame: str, text: str, decrypt: bool) -> str: # Mã hóa và giải mã văn bản
     """Mã hóa văn bản thành hex hoặc giải mã hex thành văn bản UTF-8."""
     operation = make_cipher(algorithm, key, frame)
     if decrypt:
@@ -52,7 +52,7 @@ def process_text(algorithm: str, key: str, frame: str, text: str, decrypt: bool)
             ) from exc
     return operation(text.encode("utf-8")).hex()
 
-def process_file(algorithm: str, key: str, frame: str, source: str, target: str) -> int:
+def process_file(algorithm: str, key: str, frame: str, source: str, target: str) -> int: # Mã hóa và giải mã tệp
     """Đọc source, ghi target và trả tổng byte đã xử lý."""
     operation = make_cipher(algorithm, key, frame)
     first, second = Path(source), Path(target)
