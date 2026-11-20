@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 from src.tiny_a51 import TinyA51
 
-def parse_key(value: str) -> int:
+def parse_key(value: str) -> int: # Kiểm tra khóa mã hóa
     value = value.strip()
     try:
         key = int(value, 16 if value.lower().startswith("0x") else 10)
@@ -14,7 +14,7 @@ def parse_key(value: str) -> int:
         raise argparse.ArgumentTypeError("Key must be a 32-bit unsigned integer")
     return key
 
-def encrypt_file(in_path: str, out_path: str, key: int):
+def encrypt_file(in_path: str, out_path: str, key: int): # Mã hóa tệp
     source, destination = Path(in_path), Path(out_path)
     if source.resolve() == destination.resolve() or (
         destination.exists() and source.samefile(destination)
@@ -27,10 +27,10 @@ def encrypt_file(in_path: str, out_path: str, key: int):
         output.write(result)
     print(f"Processed {in_path} -> {out_path} ({len(data)} bytes)")
 
-def decrypt_file(in_path: str, out_path: str, key: int):
+def decrypt_file(in_path: str, out_path: str, key: int): # Giải mã tệp
     encrypt_file(in_path, out_path, key)
 
-def main():
+def main(): # Điều khiển chương trình
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=("encrypt", "decrypt"))
     parser.add_argument("input")
@@ -44,5 +44,10 @@ def main():
         parser.exit(1, f"Error: {exc}\n")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":v # Gọi main() khi file được chạy như một chương trình chính.
     main()
+"""
+Phần giao diện dòng lệnh được xây dựng bằng Python, sử dụng thư viện argparse để tiếp nhận lệnh mã hóa, giải mã, đường dẫn tệp và khóa từ người dùng. 
+Chương trình kiểm tra khóa đầu vào, đọc dữ liệu tệp dưới dạng byte, sau đó sử dụng TinyA5/1 để sinh dòng khóa và thực hiện phép XOR để mã hóa hoặc giải mã.
+Kết quả được lưu vào tệp mới, đồng thời chương trình có cơ chế xử lý lỗi để hạn chế việc ghi đè hoặc làm mất dữ liệu gốc.
+"""
