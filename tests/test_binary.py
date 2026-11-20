@@ -46,3 +46,8 @@ def test_binary_input_errors(key, data): # Kiểm tra chương trình báo lỗi
 def test_full_binary_rejects_bad_frame(): # Kiểm tra A5/1 có phát hiện khung có độ dài sai không.
     with pytest.raises(ValueError):
         process_binary("A5/1", "0" * 64, "0" * 21, "0")
+"""
+sử dụng thư viện pytest để kiểm thử tính chính xác của hai thuật toán TinyA5/1 và A5/1. 
+Chương trình kiểm tra kết quả mã hóa, giải mã, dòng khóa, cơ chế Majority, trạng thái dịch thanh ghi và đối chiếu với vector tham chiếu.
+Ngoài ra, file còn kiểm tra khả năng phát hiện dữ liệu đầu vào không hợp lệ nhằm đảm bảo chương trình hoạt động đúng.”
+"""
