@@ -11,7 +11,7 @@ from ui.operations import parse_unsigned, process_file, process_text
 TINY_KEY = "10010101001110100110000"
 A51_KEY = "0x1223456789ABCDEF"
 
-class CipherApp:
+class CipherApp: # Khởi tạo giao diện chính
     def __init__(self, root):
         self.root = root
         # Chỉ worker xử lý thuật toán; Tkinter luôn được cập nhật từ luồng chính.
@@ -42,7 +42,7 @@ class CipherApp:
         self.load_example()
         self.tabs.select(1)
 
-    def build_settings(self, panel):
+    def build_settings(self, panel): # Tạo khu vực thiết lập
         ttk.Label(
             panel, text="HỆ MÃ DÒNG — NHÓM 9", font=("Segoe UI", 18, "bold")
         ).pack(anchor="w")
@@ -66,7 +66,7 @@ class CipherApp:
         self.button(row, "Nạp ví dụ", self.load_example).pack(side="left", padx=8)
         ttk.Label(panel, textvariable=self.hint, wraplength=1050).pack(anchor="w")
 
-    def build_tab(self, mode, title):
+    def build_tab(self, mode, title): # Tạo hai tab chức năng
         tab = ttk.Frame(self.tabs, padding=10)
         self.tabs.add(tab, text=title)
         label = (
@@ -105,12 +105,12 @@ class CipherApp:
                 side="left"
             )
 
-    def button(self, parent, label, command):
+    def button(self, parent, label, command): # Tạo nút bấm
         button = ttk.Button(parent, text=label, command=command)
         self.buttons.append(button)
         return button
 
-    @staticmethod
+    @staticmethod # Tạo ô nhập và xuất dữ liệu
     def textbox(parent, readonly=False, height=4, wrap="word"):
         box = ScrolledText(
             parent,
@@ -129,7 +129,7 @@ class CipherApp:
         widget.insert("1.0", value)
         widget.configure(state="disabled")
 
-    def update_algorithm(self):
+    def update_algorithm(self): # Cập nhật thuật toán
         tiny = self.algorithm.get() == "TinyA5/1"
         self.frame_entry.configure(state="disabled" if tiny else "normal")
         self.hint.set(
@@ -138,7 +138,7 @@ class CipherApp:
             else "A5/1 19/22/23 bit: khóa 64 bit (thập phân hoặc 0x...), frame 22 bit; S lấy sau khi quay."
         )
 
-    def load_example(self, event=None):
+    def load_example(self, event=None): # Nạp ví dụ
         if self.future is not None:
             return
         tiny = self.algorithm.get() == "TinyA5/1"
@@ -158,7 +158,7 @@ class CipherApp:
             "Đã nạp ví dụ. Tiny: 111 → 011 → 111; A5/1: vector chuẩn với bản rõ toàn 0."
         )
 
-    def run(self, mode, decrypt):
+    def run(self, mode, decrypt): # Xử lý mã hóa và giải mã
         algorithm, key, frame = self.algorithm.get(), self.key.get(), self.frame.get()
         data = self.inputs[mode].get("1.0", "end-1c")
         if mode == "text":
@@ -175,12 +175,12 @@ class CipherApp:
         self.direction = "Bản rõ" if decrypt else "Bản mã"
         self.submit(mode, process_binary, algorithm, key, frame, data)
 
-    def reuse(self, mode):
+    def reuse(self, mode): # Tái sử dụng kết quả
         if self.results[mode]:
             self.inputs[mode].delete("1.0", "end")
             self.inputs[mode].insert("1.0", self.results[mode])
 
-    def run_file(self, decrypt):
+    def run_file(self, decrypt): # Mã hóa và giải mã file
         if self.future is not None:
             return
         source = filedialog.askopenfilename(
@@ -212,7 +212,7 @@ class CipherApp:
                 target,
             )
 
-    def set_busy(self, busy):
+    def set_busy(self, busy): # Khóa các nút khi xử lý
         for button in self.buttons:
             button.configure(state="disabled" if busy else "normal")
         self.selector.configure(state="disabled" if busy else "readonly")
@@ -222,7 +222,7 @@ class CipherApp:
         else:
             self.update_algorithm()
 
-    def submit(self, kind, function, *args):
+    def submit(self, kind, function, *args): # Gửi công việc xử lý
         if self.future is not None:
             return
         self.pending_kind = kind
@@ -231,7 +231,7 @@ class CipherApp:
         self.status.set("Đang xử lý…")
         self.root.after(50, self.poll)
 
-    def poll(self):
+    def poll(self): # Kiểm tra và hiển thị kết quả
         if not self.future.done():
             self.root.after(50, self.poll)
             return
@@ -259,7 +259,7 @@ class CipherApp:
             self.future = None
             self.set_busy(False)
 
-    def close(self):
+    def close(self): # Đóng và chạy chương trình
         if self.future is not None:
             messagebox.showinfo(
                 "Đang xử lý",
@@ -278,3 +278,9 @@ def main():
 
 if __name__ == "__main__":
     main()
+"""
+File gui.py được sử dụng để xây dựng giao diện đồ họa bằng thư viện Tkinter, hỗ trợ hai thuật toán TinyA5/1 và A5/1. 
+Chương trình có hai tab chính: tab Nhị phân để mã hóa, giải mã và quan sát từng bước thực hiện thuật toán; tab Văn bản/File để mã hóa và giải mã văn bản UTF-8 hoặc tệp dữ liệu. 
+Khi người dùng nhập khóa, số khung và dữ liệu, giao diện sẽ kiểm tra đầu vào rồi gọi các hàm xử lý tương ứng. 
+Chương trình sử dụng luồng phụ để tránh treo giao diện trong quá trình xử lý và hiển thị kết quả hoặc thông báo lỗi sau khi hoàn tất.
+"""
