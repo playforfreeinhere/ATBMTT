@@ -69,3 +69,9 @@ def process_file(algorithm: str, key: str, frame: str, source: str, target: str)
                 output_file.write(operation(chunk))
                 total += len(chunk)
     return total
+"""
+đóng vai trò trung gian giữa giao diện và lõi thuật toán. 
+Khi người dùng nhập dữ liệu, chương trình kiểm tra khóa và số khung, sau đó khởi tạo A5/1 hoặc TinyA5/1 để xử lý.
+Đối với văn bản, dữ liệu được chuyển thành byte UTF-8, mã hóa bằng XOR và hiển thị dưới dạng Hex. 
+Đối với file, chương trình đọc dữ liệu nhị phân theo từng khối, mã hóa hoặc giải mã rồi ghi sang file mới, đảm bảo không ghi đè file gốc.”
+"""
